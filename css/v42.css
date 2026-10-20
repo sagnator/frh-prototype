@@ -1,0 +1,123 @@
+/* Final v42: Rewards and Coupons (js/v42-rewards.js) */
+.scr.v42-rewards .scr-body,.scr.v42-coupons .scr-body{padding:0 20px 34px}
+.v42-sech{margin:28px 0 12px}
+.v42-secx{font-size:12.5px;color:var(--muted)}
+.v42-list{border-radius:22px;background:#fff;box-shadow:var(--hh-shadow);overflow:hidden}
+.v42-small{margin:18px 4px 0;font-size:12px;line-height:1.5;color:var(--muted)}
+
+/* ---------- points card ---------- */
+.v42-pts{position:relative;margin-top:6px;padding:18px 18px 16px;border-radius:26px;color:#fff;overflow:hidden;
+  background:radial-gradient(120% 90% at 100% 0%,#F2464A 0%,rgba(242,70,74,0) 60%),linear-gradient(150deg,#C8102E 0%,#8C1024 100%);box-shadow:0 18px 36px -20px rgba(140,16,36,.7)}
+.v42-pts::after{content:"";position:absolute;right:-30px;bottom:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07)}
+.v42-pts-top{display:flex;align-items:center;justify-content:space-between}
+.v42-pts-lbl{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:rgba(255,255,255,.85)}
+.v42-pts-h{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font:600 12px var(--font);cursor:pointer}
+.v42-pts-n{display:flex;align-items:baseline;gap:10px;margin-top:14px}
+.v42-pts-n b{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.v42-pts-n span{font-size:13px;color:rgba(255,255,255,.8)}
+.v42-bar{height:6px;margin-top:16px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+.v42-bar i{display:block;height:100%;border-radius:3px;background:#fff}
+.v42-pts-nx{margin:9px 0 0;font-size:13px;color:rgba(255,255,255,.88)}
+.v42-pts-nx b{font-weight:600;color:#fff}
+
+/* ---------- rewards ---------- */
+.v42-rw{display:flex;align-items:center;gap:12px;padding:13px 14px;border-top:1px solid var(--line)}
+.v42-rw:first-child{border-top:0}
+.v42-rw .tile,.v42-earn .tile{width:42px;height:42px;border-radius:14px}
+.v42-rw-m{flex:1;min-width:0;display:flex;flex-direction:column}
+.v42-rw-m b{font-size:14px;font-weight:600;color:var(--ink)}
+.v42-rw-m small{margin-top:2px;font-size:12px;color:var(--muted)}
+.v42-rw-m em{margin-top:4px;font-style:normal;font-size:12px;font-weight:600;color:var(--red)}
+.v42-rw-b{flex:none;height:34px;padding:0 14px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:600 12.5px var(--font);cursor:pointer}
+.v42-rw.lock .tile{opacity:.55}
+.v42-rw.lock .v42-rw-m em{color:var(--muted)}
+.v42-rw-need{flex:none;height:28px;padding:0 10px;border-radius:99px;background:var(--hh-soft);font-size:11.5px;font-weight:600;color:var(--ink-2);display:inline-flex;align-items:center}
+.v42-earn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.v42-earn:first-child{border-top:0}
+.v42-earn .tile{width:38px;height:38px;border-radius:12px}
+.v42-earn-m{flex:1;min-width:0;display:flex;flex-direction:column}
+.v42-earn-m b{font-size:13.5px;font-weight:600}
+.v42-earn-m small{margin-top:1px;font-size:12px;color:var(--muted)}
+.v42-earn-p{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#12805A}
+.v42-earn.done .v42-earn-m b{color:var(--ink-2)}
+.v42-earn.done .v42-earn-p{color:var(--muted)}
+.v42-ref{padding:16px;border-radius:22px;background:#FFF5E9;border:1px solid #F7E2C4}
+.v42-ref>div:first-child b{display:block;font-size:15px;font-weight:600;color:var(--ink)}
+.v42-ref>div:first-child span{display:block;margin-top:4px;font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.v42-ref-code{display:flex;align-items:center;gap:10px;margin-top:14px;padding:8px 8px 8px 14px;border-radius:16px;background:#fff;border:1.5px dashed #E8C995}
+.v42-ref-code span{font-size:11.5px;color:var(--muted)}
+.v42-ref-code b{flex:1;font-size:16px;font-weight:600;letter-spacing:.1em}
+.v42-ref-code button{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:600 13px var(--font);cursor:pointer}
+.v42-h{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.v42-h:first-child{border-top:0}
+.v42-h-m{flex:1;min-width:0;display:flex;flex-direction:column}
+.v42-h-m b{font-size:13.5px;font-weight:500;color:var(--ink)}
+.v42-h-m small{margin-top:1px;font-size:12px;color:var(--muted)}
+.v42-h-p{font-size:14px;font-weight:600;color:#12805A}
+.v42-h-p.neg{color:var(--ink-2)}
+
+/* ---------- redeem sheet ---------- */
+.v42-sheet{text-align:center}
+.v42-sheet-ic{width:58px;height:58px;margin:6px auto 0;border-radius:18px}
+.v42-sheet h2{margin-top:14px}
+.v42-sheet p b{font-weight:600;color:var(--ink);letter-spacing:.04em}
+.v42-sheet-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 18px;text-align:left}
+.v42-sheet-sum div{padding:12px 14px;border-radius:16px;background:var(--hh-soft)}
+.v42-sheet-sum span{display:block;font-size:12px;color:var(--muted)}
+.v42-sheet-sum b{display:block;margin-top:2px;font-size:18px;font-weight:600}
+
+/* ---------- coupons: code field + tabs ---------- */
+.v42-code{display:flex;align-items:center;gap:10px;height:52px;margin-top:6px;padding:0 6px 0 14px;border-radius:18px;background:#fff;box-shadow:var(--hh-shadow);color:var(--muted)}
+.v42-code.err{box-shadow:0 0 0 1.5px var(--red)}
+.v42-code input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:500 15px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.v42-code input::placeholder{letter-spacing:0;text-transform:none;color:var(--muted);font-weight:400}
+.v42-code button{flex:none;height:40px;padding:0 16px;border:0;border-radius:14px;background:var(--ink);color:#fff;font:600 13.5px var(--font);cursor:pointer}
+.v42-code-err,.v42-code-hint{display:flex;align-items:center;gap:6px;margin:8px 4px 0;font-size:12.5px;color:var(--muted)}
+.v42-code-err{color:#B3142A}
+.v42-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:18px 0 6px;padding:4px;border-radius:99px;background:var(--hh-soft)}
+.v42-tabs button{height:36px;border:0;border-radius:99px;background:none;font:600 13px var(--font);color:var(--muted);cursor:pointer}
+.v42-tabs button span{font-weight:500;opacity:.8}
+.v42-tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 2px 8px -4px rgba(0,0,0,.18)}
+.v42-cartline{display:block;margin:12px 4px 2px;font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.v42-cartline .ic{vertical-align:-2px;margin-right:4px}
+.v42-cartline b{font-weight:600;color:var(--ink)}
+.v42-cps{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+
+/* ---------- coupon ticket ---------- */
+.v42-cp{position:relative;display:flex;border-radius:20px;background:#fff;box-shadow:var(--hh-shadow);overflow:hidden}
+.v42-cp.on{box-shadow:0 0 0 1.5px #1FA855,var(--hh-shadow)}
+.v42-cp-band{position:relative;flex:none;width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:var(--red);color:#fff}
+.v42-cp.src-points .v42-cp-band{background:linear-gradient(160deg,#C9962B,#9C6F14)}
+.v42-cp.src-code .v42-cp-band{background:var(--ink)}
+.v42-cp.past .v42-cp-band{background:#CFCFCF}
+.v42-cp-band b{font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.v42-cp-band small{font-size:10px;font-weight:600;letter-spacing:.14em}
+.v42-cp-band::before,.v42-cp-band::after{content:"";position:absolute;right:-7px;width:14px;height:14px;border-radius:50%;background:var(--bg)}
+.v42-cp-band::before{top:-7px}
+.v42-cp-band::after{bottom:-7px}
+.v42-cp-m{flex:1;min-width:0;padding:13px 14px 12px;border-left:1.5px dashed var(--line)}
+.v42-cp-top{display:flex;align-items:center;gap:8px}
+.v42-cp-top b{flex:1;min-width:0;font-size:15px;font-weight:600;color:var(--ink)}
+.v42-best{flex:none;height:22px;padding:0 8px;border-radius:99px;background:#E7F5EE;color:#12805A;font-size:11px;font-weight:600;display:inline-flex;align-items:center}
+.v42-src{flex:none;height:22px;padding:0 8px;border-radius:99px;background:var(--hh-soft);color:var(--ink-2);font-size:11px;font-weight:600;display:inline-flex;align-items:center}
+.v42-cp-m p{margin:3px 0 0;font-size:12.5px;line-height:1.4;color:var(--ink-2)}
+.v42-cp-cond{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+.v42-cp-save{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:12.5px;font-weight:600;color:#12805A}
+.v42-cp-no{display:block;margin-top:6px;font-size:12px;color:#8A5300}
+.v42-cp-code{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.v42-cp-code button,.v42-code-off{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px dashed var(--hh-field);border-radius:8px;background:none;font:600 12px var(--font);letter-spacing:.08em;color:var(--ink);cursor:pointer}
+.v42-code-off{color:var(--muted);text-decoration:line-through;cursor:default}
+.v42-cp-code small{font-size:11.5px;color:var(--muted)}
+.v42-cp-code small.soon{color:#B3142A;font-weight:600}
+.v42-terms{margin:10px 0 0;padding:10px 12px 10px 26px;border-radius:12px;background:var(--hh-soft);font-size:12px;line-height:1.5;color:var(--ink-2)}
+.v42-cp-acts{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.v42-cp-acts .link{font-size:13px}
+.v42-apply{height:34px;padding:0 18px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:600 13px var(--font);display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.v42-apply.done{background:#E7F5EE;color:#12805A}
+.v42-cp.past .v42-cp-top b{color:var(--ink-2)}
+.v42-torew{display:flex;align-items:center;gap:12px;width:100%;margin-top:18px;padding:13px 14px;border:0;border-radius:20px;background:#fff;box-shadow:var(--hh-shadow);text-align:left;font-family:var(--font);color:var(--ink);cursor:pointer}
+.v42-torew .tile{width:40px;height:40px;border-radius:13px}
+.v42-torew>span:nth-child(2){flex:1;display:flex;flex-direction:column}
+.v42-torew b{font-size:14px;font-weight:600}
+.v42-torew small{margin-top:1px;font-size:12px;color:var(--muted)}
+.v42-torew>.ic{color:var(--muted)}

@@ -23,6 +23,7 @@
     briefcase: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8.5 7V5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2"/><path d="M3 12.5h18"/>',
     crosshair: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/>',
     drop: '<path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/>',
+    gift: '<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5"/><path d="M12 8.5V21"/><path d="M12 8.5S10.5 3.6 7.8 4.1C5.6 4.6 6.4 8.5 12 8.5z"/><path d="M12 8.5s1.5-4.9 4.2-4.4c2.2.5 1.4 4.4-4.2 4.4z"/>',
     bellOff: '<path d="M8.7 3.6A6 6 0 0 1 18 8c0 3.3.7 5.5 1.5 6.9"/><path d="M6.3 6.3A6 6 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path d="m3 3 18 18"/>',
     tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
     receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/>',
@@ -285,7 +286,7 @@
       { to: 'membership', ic: 'crown', label: 'Membership', meta: tier ? `${tier.name} plan` : 'See plans', cls: 'px-q-m' },
       { to: 'patients', ic: 'users', label: 'Patients', meta: `${PD.patients.length} saved` },
       { to: 'addresses', ic: 'pin', label: 'Addresses', meta: `${PD.addresses.length} saved` },
-      { to: 'coupons', ic: 'tag', label: 'Coupons', meta: `${CPN.length} to use` },
+      { to: 'rewards', ic: 'gift', label: 'Rewards', meta: `${(S.v42pts ?? 1240).toLocaleString('en-US')} points` },   /* v42: Coupons moved to the list below */
     ];
   };
   const MENU = [
@@ -293,6 +294,7 @@
       { to: 'reports-hub', ic: 'file', label: 'Medical reports' },
       { to: 'invoices', ic: 'receipt', label: 'Invoices' },
       { to: 'pay-methods', ic: 'card', label: 'Payment methods' },
+      { to: 'coupons', ic: 'tag', label: 'Coupons', val: () => `${F.v42 ? F.v42.available() : CPN.length}` },
     ] },
     { h: 'Preferences', rows: [
       { to: 'notif-settings', ic: 'bell', label: 'Notification settings' },
@@ -325,7 +327,7 @@
       const plan = tier
         ? `<button class="v33-plan on" type="button" ${goAttr('membership')}><span class="v33-pi">${icon('crown', 20, 2)}</span><span class="v33-pt"><b>FRH ${esc(tier.name)}</b><small>Included visits and priority booking</small></span><span class="v33-pill">Manage</span></button>`
         : `<button class="v33-plan" type="button" ${goAttr('membership')}><span class="v33-pi">${icon('crown', 20, 2)}</span><span class="v33-pt"><b>Join FRH membership</b><small>Included home visits, priority booking, no night fees</small></span><span class="v33-pill">See plans</span></button>`;
-      const groups = [{ h: 'Saved', rows: [{ to: 'addresses', ic: 'pin', label: 'Addresses', val: () => `${PD.addresses.length}` }, { to: 'coupons', ic: 'tag', label: 'Coupons', val: () => `${CPN.length}` }] }, ...MENU];
+      const groups = [{ h: 'Saved', rows: [{ to: 'addresses', ic: 'pin', label: 'Addresses', val: () => `${PD.addresses.length}` }, { to: 'coupons', ic: 'tag', label: 'Coupons', val: () => `${F.v42 ? F.v42.available() : CPN.length}` }, { to: 'rewards', ic: 'gift', label: 'Rewards', val: () => `${(S.v42pts ?? 1240).toLocaleString('en-US')} pts` }] }, ...MENU];
       return `${nav}<div class="scr-body v33 v33-b">
           <button class="v33-id" type="button" ${goAttr('edit-profile')} aria-label="Edit your profile">
             <span class="v33-ava">${initials(me.name)}<span class="px-ava-badge">${icon('edit', 11, 2.4)}</span></span>
@@ -343,7 +345,7 @@
     const tiles = [['appts', 'calendar', 'My bookings'], ['reports-hub', 'file', 'Medical reports'], ['support', 'headset', 'Help and support']];
     const groups = [
       { h: 'Health', rows: [['patients', 'users', 'Patients', `${pats.length}`], ['addresses', 'pin', 'Addresses', `${PD.addresses.length}`], ['e-rx', 'file', 'Prescriptions']] },
-      { h: 'Payments', rows: [['pay-methods', 'card', 'Payment methods'], ['invoices', 'receipt', 'Invoices'], ['coupons', 'tag', 'Coupons', `${CPN.length} to use`]] },
+      { h: 'Payments', rows: [['pay-methods', 'card', 'Payment methods'], ['invoices', 'receipt', 'Invoices'], ['coupons', 'tag', 'Coupons', `${F.v42 ? F.v42.available() : CPN.length} to use`], ['rewards', 'gift', 'Rewards', `${(S.v42pts ?? 1240).toLocaleString('en-US')} points`]] },
       { h: 'Plan and settings', rows: [['membership', 'crown', 'Membership', tier ? tier.name : 'Join'], ['notif-settings', 'bell', 'Notifications'], ['language', 'globe', 'Language', 'English'], ['account', 'gear', 'Account settings']] },
       { h: 'About', rows: [['policies', 'shieldCheck', 'Policies'], ['about', 'info', 'About FRH']] },
     ];

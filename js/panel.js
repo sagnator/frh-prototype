@@ -176,7 +176,11 @@
       { id: 'px-del-addr', n: 'Delete address', note: 'Confirmation names the address and says booked visits keep it.' },
       { id: 'px-address', n: 'Add address', note: 'A centred pin with current location; the area is checked against the service area before you type.' },
       { id: 'px-address-search', n: 'Address search', note: 'An in-screen layer with the keyboard; areas not yet served are marked Coming soon.' },
-      { id: 'coupons', n: 'Coupons', note: 'Available only: copy the code or Use now to apply it to the cart.' },
+      { id: 'rewards', n: 'Rewards', note: 'New in v42. FRH points: the balance and what it is worth, a bar to the next reward, rewards to redeem (Redeem asks first, then the reward lands in Coupons), ways to earn, a refer-a-friend code and points history. From Account › Rewards. References via Mobbin: CHOPT, adidas, Taco Bell, Gymshark.' },
+      { id: 'v42-redeem', n: 'Redeem points', note: 'Confirm before spending points: what you get, the code it becomes, points used and points left.' },
+      { id: 'coupons', n: 'Coupons', note: 'Redesigned in v42. Enter a code (try FRIEND50), then Available, Used and Expired. Each ticket shows the conditions, an expiry countdown (red within a week), the code to copy, Details and Apply. With a cart, coupons are sorted by what they save and the best one is marked. References via Mobbin: Swiggy, Trip.com, Agoda, Keeta.' },
+      { id: 'v42-coupons-used', n: 'Coupons · used', note: 'Used and Expired tabs keep a record of what you saved, with the codes struck through.' },
+      { id: 'v42-coupons-bad', n: 'Coupons · invalid code', note: 'A code that does not exist or has expired gets a clear inline message; typing again clears it.' },
       { id: 'invoices', n: 'Invoices', note: 'One VAT invoice per booking; tap to open it in the viewer.' },
       { id: 'px-pdf', n: 'Document viewer', note: 'Reports and invoices open in-app, with Share and Download under the page.' },
       { id: 'px-share', n: 'Share', note: 'The native share sheet: AirDrop, Messages, Mail, WhatsApp, Save to Files.' },
@@ -228,6 +232,12 @@
   const via = (fn, ids) => ids.forEach(id => { ROUTE[id] = () => fn(id); });
   via(id => F.hx && F.hx.jump(id), ['home', 'home-addr', 'search', 'search-typing', 'search-none', 'notifs', 'notifs-empty', 'cats', 'soon-sheet', 'subcat-loading', 'subcat', 'subcat-search', 'subcat-na']);
   via(id => F.pxJump && F.pxJump(id), ['profile-home', 'edit-profile', 'patients', 'px-patient', 'addresses', 'px-del-addr', 'px-address', 'px-address-search', 'px-address-onboarding', 'coupons', 'invoices', 'px-pdf', 'px-share', 'pay-methods', 'px-card', 'notif-settings', 'notif-blocked', 'language', 'lang-ar', 'support', 'policies', 'policy-text', 'about', 'account', 'px-phone', 'px-phone-code', 'px-delete', 'px-delete-code', 'px-deleted', 'logout']);
+  { const acc = ROUTE['profile-home'], rcp = ROUTE.coupons;   /* v42: Rewards and Coupons from Account */
+    ROUTE.rewards = () => { acc(); F.v42.rewards(); };
+    ROUTE['v42-redeem'] = () => { acc(); F.v42.redeem('r25'); };
+    ROUTE.coupons = () => { acc(); F.v42.coupons('avail'); };
+    ROUTE['v42-coupons-used'] = () => { acc(); F.v42.coupons('used'); };
+    ROUTE['v42-coupons-bad'] = () => { acc(); F.v42.coupons('avail', 'bad'); }; }
   { const rs = ROUTE.subcat, rc = ROUTE.cats;                 /* v40: address bar on the listings */
     if (rs) ROUTE.subcat = () => { F.v40.home(); rs(); };
     if (rc) ROUTE.cats = () => { F.v40.home(); rc(); };
