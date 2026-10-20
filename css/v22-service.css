@@ -1,0 +1,6 @@
+/* Final v22: licence line under the service name (credOf in js/dev-book.js) */
+.v22-cred{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 11px 6px 9px;border-radius:999px;font-size:13px;font-weight:600;line-height:1.2;background:var(--ok-bg,#E7F4EC);color:var(--ok,#12805A)}
+.v22-cred svg{flex:none}
+/* on the full-bleed photo: frosted glass so it reads on any image */
+.v20-hcap .v22-cred{margin-top:12px;background:rgba(255,255,255,.18);color:#fff;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.v20-hcap .v22-cred svg{color:#8BE6AE}

@@ -1,0 +1,33 @@
+/* Final v32: "Still have questions?" after the FAQs, and the All FAQs screen */
+/* A: card */
+.v32-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 18px 16px;border-radius:22px;background:#F6F4F1}
+.v32-faces{display:flex;margin-bottom:12px}
+.v32-faces img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2.5px solid #F6F4F1}
+.v32-faces img+img{margin-left:-10px}
+.v32-card h4{margin:0;font-size:18px;font-weight:600;color:var(--ink,#141414)}
+.v32-card p{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--muted,#6B6B6B);max-width:280px}
+.v32-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:16px}
+.v32-btns .btn{height:48px;border-radius:999px;font-size:14px;gap:6px;padding:0 10px;white-space:nowrap}
+.v32-card .btn-secondary{background:#fff}
+.v32-chatlink{margin-top:10px;border:0;background:none;font:inherit;font-size:13px;font-weight:500;color:var(--ink-2,#3D3D3D);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* B: rows */
+.v32-allbtn{width:100%;height:48px;border-radius:999px}
+.v32-lbl{margin:20px 0 8px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted,#6B6B6B)}
+.v32-rows .info-row{width:100%;border:0;background:none;font:inherit;text-align:left;cursor:pointer}
+.v32-spark{background:#141414!important;color:#fff!important}
+.v32-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok,#0E7350);margin-right:5px;vertical-align:1px}
+/* C: ask inline */
+.v32-ask{padding:18px 16px 16px;border-radius:22px;background:#141414;color:#fff}
+.v32-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#F2C14E}
+.v32-ask h4{margin:8px 0 14px;font-size:18px;font-weight:600;line-height:1.3;color:#fff;text-wrap:balance}
+.v32-field{display:flex;align-items:center;justify-content:space-between;width:100%;height:48px;padding:0 6px 0 16px;border:0;border-radius:999px;background:#fff;font:inherit;font-size:14px;color:#7A7A7A;cursor:pointer}
+.v32-mic{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#141414;color:#fff}
+.v32-sugs{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:12px}
+.v32-sug{height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);font:inherit;font-size:13px;color:#fff;cursor:pointer}
+.v32-link{display:flex;align-items:center;gap:4px;margin:14px auto 0;border:0;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--ink,#141414);cursor:pointer}
+/* All FAQs screen */
+.v32-sub{margin:2px 0 12px;font-size:13.5px;color:var(--muted,#6B6B6B)}
+.v32-topics{margin:0 -20px 6px;padding:0 20px}
+.v32-gh{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 8px}
+.v32-gh span{font-size:12.5px;color:var(--muted,#6B6B6B)}
+.v32-foot{margin:26px 0 30px}

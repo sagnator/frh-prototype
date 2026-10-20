@@ -1,0 +1,18 @@
+/* Final v24: What's included as feature tiles (v24Inc in js/dev-book.js) */
+.v24-hl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:2px 0 10px}
+.v24-hl.v24-n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.v24-t{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:12px 10px 13px 12px;background:#fff;border:1px solid var(--line,#E7E7E7);border-radius:16px}
+.v24-ic{display:grid;place-items:center;width:38px;height:38px;margin-bottom:11px;border-radius:12px;background:#F3F3F3;color:var(--ink,#141414)}
+.v24-t b{font-size:13.5px;font-weight:600;line-height:1.25;color:var(--ink,#141414);letter-spacing:-.005em}
+.v24-t small{display:block;margin-top:3px;font-size:11.5px;line-height:1.3;color:var(--muted,#6B6B6B)}
+.v24-ticks div{padding:5px 0}
+.v24-lbl{margin:14px 0 8px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted,#6B6B6B)}
+/* top bar: count of designs to make */
+.v24-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
+.v24-sum div{padding:10px 8px;border-radius:12px;background:#F6F3F2;font-size:11.5px;color:#4A3B3E;line-height:1.25}
+.v24-sum b{display:block;font-size:22px;line-height:1.1;color:#1C1214;margin-bottom:2px}
+.v24-sum .v24-dim{background:#fff;border:1px dashed #E2D9D7}
+.v24-sum .v24-dim b{color:#8A7B7E}
+.v24-more{margin-top:16px}
+.v24-more summary{cursor:pointer;font-size:12.5px;font-weight:600;color:#4A3B3E;padding:6px 0}
+.v24-more .ns-row{margin-top:5px}

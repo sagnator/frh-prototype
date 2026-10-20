@@ -1,0 +1,13 @@
+/* Final v27: How it works as a timeline (v27How in js/dev-book.js) */
+.v27-how{list-style:none;margin:4px 0 0;padding:0}
+.v27-how li{position:relative;display:flex;gap:14px;padding-bottom:20px}
+.v27-how li:last-child{padding-bottom:0}
+/* dotted line from one icon to the next */
+.v27-how li:not(:last-child)::before{content:'';position:absolute;left:19px;top:44px;bottom:4px;border-left:2px dotted #CFCFCF}
+.v27-ic{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#F3F3F3;color:var(--ink,#141414);position:relative;z-index:1}
+.v27-how li.now .v27-ic{background:var(--ink,#141414);color:#fff}
+.v27-how li>div{min-width:0;padding-top:1px}
+.v27-how small{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted,#6B6B6B)}
+.v27-how li.now small{color:var(--red,#D71F32)}
+.v27-how b{display:block;margin-top:2px;font-size:15px;font-weight:600;color:var(--ink,#141414);letter-spacing:-.005em}
+.v27-how p{margin:3px 0 0;font-size:13px;line-height:1.45;color:var(--muted,#6B6B6B)}

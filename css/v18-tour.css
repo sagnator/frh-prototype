@@ -1,0 +1,43 @@
+/* Final v18: first-time walkthrough (js/v18-tour.js) */
+.v18-tour{position:absolute;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity .26s ease}
+.v18-tour.on{opacity:1;pointer-events:auto}
+.v18-tour:empty{display:none}
+.v18-dim{position:absolute;inset:0;background:rgba(12,8,9,.62)}
+
+/* spotlight: one hole in the dim, moved from target to target */
+.v18-spot{position:absolute;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 2400px rgba(12,8,9,.62);transition:left .38s cubic-bezier(.2,.85,.25,1),top .38s cubic-bezier(.2,.85,.25,1),width .38s cubic-bezier(.2,.85,.25,1),height .38s cubic-bezier(.2,.85,.25,1),border-radius .38s}
+.v18-spot::after{content:'';position:absolute;inset:-2px;border-radius:inherit;box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:v18pulse 1.8s ease-out infinite}
+@keyframes v18pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}70%,100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
+
+/* the tip card */
+.v18-card{position:absolute;left:16px;right:16px;background:#fff;border-radius:22px;padding:16px 16px 14px 18px;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);color:var(--ink,#1C1214)}
+.v18-card.in{animation:v18in .32s cubic-bezier(.2,.85,.25,1)}
+.v18-card.below.in{animation-name:v18inB}
+@keyframes v18in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes v18inB{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.v18-arr{position:absolute;width:14px;height:14px;background:#fff;transform:rotate(45deg);border-radius:3px}
+.v18-card.above .v18-arr{bottom:-6px}
+.v18-card.below .v18-arr{top:-6px}
+.v18-k{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--red,#D71F32);margin-bottom:4px}
+.v18-t{display:block;font-size:18px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.v18-s{margin:5px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2,#4A3B3E)}
+.v18-f{display:flex;align-items:center;gap:8px;margin-top:14px}
+.v18-skip{border:0;background:none;padding:8px 2px;font:inherit;font-size:14px;font-weight:600;color:var(--muted,#6B6B6B);cursor:pointer}
+.v18-dots{flex:1;display:flex;justify-content:center;gap:5px}
+.v18-dots i{width:6px;height:6px;border-radius:3px;background:#E4DEDC;transition:width .25s,background .25s}
+.v18-dots i.on{width:16px;background:var(--ink,#1C1214)}
+.v18-back{width:40px;height:40px;border-radius:20px;border:1px solid #E7E2E1;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink,#1C1214);cursor:pointer}
+.v18-next{height:40px;padding:0 18px;border:0;border-radius:20px;background:var(--ink,#1C1214);color:#fff;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+
+/* welcome card, the first thing a new user sees */
+.v18-wcard{position:absolute;left:12px;right:12px;bottom:12px;background:#fff;border-radius:34px;padding:28px 22px 18px;text-align:center;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);animation:v18up .42s cubic-bezier(.2,.85,.25,1)}
+@keyframes v18up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.v18-wic{width:58px;height:58px;border-radius:20px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--ink,#1C1214);color:#F2C14E}
+.v18-wcard h2{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.v18-wcard p{margin:8px 6px 20px;font-size:15px;line-height:1.5;color:var(--ink-2,#4A3B3E)}
+.v18-wcard .btn{width:100%}
+.v18-later{display:block;width:100%;margin-top:6px;border:0;background:none;padding:12px;font:inherit;font-size:15px;font-weight:600;color:var(--muted,#6B6B6B);cursor:pointer}
+
+/* service page price row: a discounted price wrapped to "AED / 450" in v17. Keep each piece on one line. */
+.s-pd{flex-wrap:wrap;row-gap:6px}
+.s-pd>*{white-space:nowrap}

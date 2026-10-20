@@ -1,0 +1,48 @@
+/* Final v20: service page summary and section tabs (js/dev-book.js, SCREENS.service) */
+
+/* top bar: title row + section tabs; 138 px tall (V20_BAR in dev-book.js) */
+.b-topbar.v20-topbar{height:auto;display:block;padding:50px 0 0}
+.v20-trow{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px}
+.v20-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 14px 10px;scroll-behavior:smooth}
+.v20-tabs::-webkit-scrollbar{display:none}
+.v20-tab{flex:none;height:32px;padding:0 14px;border-radius:16px;border:0;background:#F1F1F1;color:var(--ink-2,#4A3B3E);font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .2s,color .2s}
+.v20-tab.on{background:var(--ink,#1C1214);color:#fff}
+
+/* full-bleed photo with the name on it */
+.scr.service.s-service .b-hero.v20-bleed{height:470px}
+.scr.service.s-service .b-hero.v20-bleed img{object-position:50% 12%}
+.scr.service .b-hero.v20-bleed::after{content:'';display:block;position:absolute;top:auto;left:0;right:0;bottom:0;height:72%;background:linear-gradient(180deg,rgba(12,8,9,0) 0%,rgba(12,8,9,.42) 38%,rgba(12,8,9,.74) 72%,rgba(12,8,9,.82) 100%);pointer-events:none}   /* strong enough for white text on bright clinic photos */
+.v20-bleed .b-hero-top{z-index:3}
+.v20-hcap{position:absolute;left:24px;right:24px;bottom:54px;z-index:2;color:#fff}
+.v20-hcap .h1{margin:6px 0 0;color:#fff;font-size:33px;line-height:1.08;font-weight:600;letter-spacing:-.025em;text-shadow:0 2px 18px rgba(0,0,0,.25)}
+.v20-hcap .v20-eyebrow{color:#fff;opacity:.92;text-shadow:0 1px 10px rgba(0,0,0,.35)}
+
+/* summary */
+.v20-eyebrow{display:block;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--red,#D71F32)}
+.s-sum.v20-sum .h1{margin-top:6px}
+.s-sum.v20-sum .s-desc{margin:8px 0 0}
+.s-sum.v20-sum.bleed{background:transparent;border:0;border-radius:0;padding:2px 2px 0;box-shadow:none}
+.s-sum.v20-sum.bleed .s-desc{margin-top:0;font-size:15.5px;line-height:1.5}
+
+/* three facts, one line each */
+.v20-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px;border:1px solid var(--line,#ECE7E6);border-radius:18px;background:#fff}
+.v20-sum:not(.bleed) .v20-facts{background:#F6F6F6;border-color:transparent}
+.v20-f{min-width:0;padding:12px 8px 11px;text-align:center}
+.v20-f+.v20-f{border-left:1px solid var(--line,#ECE7E6)}
+.v20-sum:not(.bleed) .v20-f+.v20-f{border-left-color:#E6E6E6}
+.v20-f b{display:flex;align-items:center;justify-content:center;gap:5px;font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--ink,#1C1214);white-space:nowrap}
+.v20-f b svg{color:#F5A623;flex:none}
+.v20-f small{display:block;margin-top:3px;font-size:12px;color:var(--muted,#6B6B6B);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v20-live{flex:none;width:7px;height:7px;border-radius:50%;background:var(--ok,#12805A);box-shadow:0 0 0 3px rgba(18,128,90,.16)}
+
+/* price and who it is for, on one row */
+.v20-buy{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+.v20-pd{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 8px;min-width:0}
+.v20-pd>b{font-size:26px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.v20-pd small{font-size:12.5px;color:var(--muted,#6B6B6B);white-space:nowrap}
+.v20-pd .s-was{font-size:13px;font-weight:600;color:var(--muted,#6B6B6B);white-space:nowrap}
+.v20-pd .pill{align-self:center;white-space:nowrap}
+.v20-for{flex:none;display:flex;align-items:center;gap:6px;max-width:55%;height:42px;padding:0 12px 0 15px;border-radius:21px;border:1px solid var(--line,#ECE7E6);background:#fff;color:var(--ink,#1C1214);font:inherit;cursor:pointer}
+.v20-for small{font-size:12.5px;color:var(--muted,#6B6B6B)}
+.v20-for b{min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v20-for svg{flex:none;color:var(--muted,#6B6B6B)}

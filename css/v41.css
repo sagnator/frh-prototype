@@ -1,0 +1,7 @@
+/* Final v41: the client's FRH logo (medical bag + heartbeat + speed lines) replaces the placeholder roof-and-cross mark */
+.p-hero .frh-mark path,.p-hero .frh-mark .m-logo{fill:var(--red);stroke:none}
+.frh-appicon .frh-mark{display:block}
+/* splash: the bag slides in from the left, like the speed lines say */
+.sp-mark{width:120px;height:74px}
+.sp-mark .m-logo{transform-box:fill-box;transform-origin:center;animation:v41in .7s .15s cubic-bezier(.2,.9,.25,1) both}
+@keyframes v41in{from{opacity:0;transform:translateX(-26px) scale(.92)}to{opacity:1;transform:none}}

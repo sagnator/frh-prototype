@@ -1,0 +1,42 @@
+/* Final v33: Account page options B (health card) and C (action tiles) */
+/* B */
+.v33-id{display:flex;flex-direction:column;align-items:center;width:100%;margin:4px 0 16px;border:0;background:none;font:inherit;cursor:pointer;text-align:center}
+.v33-ava{position:relative;display:grid;place-items:center;width:76px;height:76px;border-radius:50%;background:#EFEDEA;color:var(--ink,#141414);font-size:24px;font-weight:600;margin-bottom:10px}
+.v33-ava .px-ava-badge{position:absolute;right:-2px;bottom:-2px}
+.v33-id b{font-size:21px;font-weight:600;color:var(--ink,#141414)}
+.v33-id small{margin-top:2px;font-size:13.5px;color:var(--muted,#6B6B6B)}
+.v33-since{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 11px;border-radius:999px;background:#E7F4EC;color:var(--ok,#0E7350);font-size:12px;font-weight:600}
+.v33-plan{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:20px;border:1px solid var(--line,#E7E7E7);background:#fff;font:inherit;text-align:left;cursor:pointer}
+.v33-plan.on{background:#141414;border-color:#141414;color:#fff}
+.v33-pi{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#FBEAEC;color:#D71F32;flex:none}
+.v33-plan.on .v33-pi{background:rgba(242,193,78,.16);color:#F2C14E}
+.v33-pt{flex:1;min-width:0}
+.v33-pt b{display:block;font-size:15px;font-weight:600}
+.v33-pt small{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:var(--muted,#6B6B6B)}
+.v33-plan.on .v33-pt small{color:rgba(255,255,255,.7)}
+.v33-pill{flex:none;padding:7px 12px;border-radius:999px;background:#141414;color:#fff;font-size:12.5px;font-weight:600}
+.v33-plan.on .v33-pill{background:#fff;color:#141414}
+.v33-fam{display:flex;gap:10px;overflow-x:auto;margin:0 -20px;padding:2px 20px 4px;scrollbar-width:none}
+.v33-fam::-webkit-scrollbar{display:none}
+.v33-p{flex:none;display:flex;flex-direction:column;align-items:center;width:70px;border:0;background:none;font:inherit;cursor:pointer}
+.v33-pa{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#fff;border:1px solid var(--line,#E7E7E7);font-size:16px;font-weight:600;color:var(--ink,#141414)}
+.v33-pa.me{border:2px solid #141414}
+.v33-p.add .v33-pa{border-style:dashed;color:var(--muted,#6B6B6B)}
+.v33-p b{margin-top:6px;font-size:13px;font-weight:600;color:var(--ink,#141414)}
+.v33-p small{font-size:11.5px;color:var(--muted,#6B6B6B)}
+/* C */
+.v33-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:2px 0 16px}
+.v33-head b{display:block;font-size:24px;font-weight:600;letter-spacing:-.01em;color:var(--ink,#141414)}
+.v33-head small{display:block;margin-top:2px;font-size:13px;color:var(--muted,#6B6B6B)}
+.v33-edit{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line,#E7E7E7);background:#fff;color:var(--ink,#141414);cursor:pointer;flex:none}
+.v33-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.v33-tile{display:flex;flex-direction:column;align-items:flex-start;gap:16px;min-height:96px;padding:14px 12px;border-radius:18px;border:1px solid var(--line,#E7E7E7);background:#fff;font:inherit;text-align:left;cursor:pointer}
+.v33-tile span{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#F3F3F3;color:var(--ink,#141414)}
+.v33-tile b{font-size:13.5px;font-weight:600;line-height:1.25;color:var(--ink,#141414)}
+.v33-family{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:10px;padding:14px 16px;border-radius:18px;border:0;background:#F6F4F1;font:inherit;text-align:left;cursor:pointer}
+.v33-ft b{display:block;font-size:14.5px;font-weight:600;color:var(--ink,#141414)}
+.v33-ft small{display:block;margin-top:2px;font-size:12.5px;color:var(--muted,#6B6B6B)}
+.v33-stack{display:flex;flex:none}
+.v33-stack i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid #F6F4F1;font-style:normal;font-size:11px;font-weight:600;color:var(--ink,#141414)}
+.v33-stack i+i{margin-left:-9px}
+.v33-out{width:100%;height:50px;margin-top:22px;border-radius:999px;gap:8px;color:#D71F32}

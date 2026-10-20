@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRH Dynamic Island</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/v19-island.css?f=23">
+<style>
+:root{--red:#D71F32;--ink:#1C1214;--ink2:#4A3B3E;--muted:#6B6B6B;--line:#ECE7E6;--bg:#F7F4F3;--card:#fff;--green:#12805A;
+  --ios:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Plus Jakarta Sans",-apple-system,Helvetica,Arial,sans-serif}
+main{max-width:1400px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:30px;line-height:1.2;margin:0 0 8px;font-weight:600}
+h2{font-size:21px;margin:52px 0 4px;font-weight:600;display:flex;align-items:center;gap:10px}
+h2 .tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 8px;border-radius:7px;background:var(--ink);color:#F2C14E}
+.lead{max-width:900px;color:var(--ink2);margin:0 0 6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:20px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.fact b{display:block;font-size:15px;margin-bottom:4px}
+.fact p{margin:0;font-size:13.5px;color:var(--ink2)}
+.fact.no b{color:#B3172A}
+.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px 18px;margin-top:18px;align-items:start}
+.pv-cell{margin:0}
+.pv-cell figcaption{margin-top:8px;font-size:13px;color:var(--muted)}
+.pv-cell figcaption b{display:block;color:var(--ink);font-size:14px;font-weight:600}
+.pv-ph{--k:1;position:relative;width:calc(393px * var(--k));height:calc(196px * var(--k));border-radius:calc(26px * var(--k));overflow:hidden;box-shadow:0 14px 30px -22px rgba(0,0,0,.5)}
+.pv-ph.short{height:calc(76px * var(--k))}
+.pv-ph.lock{height:calc(372px * var(--k))}
+.pv-scr{position:absolute;left:0;top:0;width:393px;height:372px;transform:scale(var(--k));transform-origin:0 0;background:#1c2748 url(assets/img/wallpaper.jpg) center top/cover no-repeat}
+.pv-sb{position:absolute;top:0;left:0;right:0;height:54px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+.pv-time{width:136px;text-align:center;font:600 17px/1 var(--ios);padding:4px 14px 0 0}
+.pv-icons{width:136px;display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:4px 18px 0 0}
+.pv-icons svg{display:block}
+.island-hw{position:absolute;top:11px;left:134.5px;width:124px;height:36px;border-radius:18px;background:#000}
+.pv-lockclock{position:absolute;top:66px;left:0;right:0;text-align:center;color:#fff;font-family:var(--ios)}
+.pv-lockclock small{display:block;font-size:18px;font-weight:600;opacity:.9}
+.pv-lockclock b{display:block;font-size:86px;line-height:1;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+.pv-lockcard{position:absolute;left:16px;top:196px}
+.pv-ph .di-isl{transition:none}
+.note{margin-top:14px;font-size:13.5px;color:var(--ink2);max-width:900px}
+a{color:var(--red)}
+@media (max-width:640px){main{padding:24px 16px 60px}h1{font-size:26px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>Dynamic Island: FRH Live Activities</h1>
+<p class="lead">An app can't send ordinary notifications into the Dynamic Island. What it can put there is a <b>Live Activity</b>: a small, live view of something happening right now, which FRH updates from its server. Below is everything FRH would show, in each form iOS gives an activity. Try it on the phone in <a href="index.html">Final v19</a>: the panel's "Dynamic Island" group, or close the app during the live visit.</p>
+<div class="facts">
+  <div class="fact"><b>Where it shows</b><p>In the island only while the patient is outside FRH (home screen, another app). Always on the Lock Screen. Opening FRH hides it there, since the app itself shows the same thing.</p></div>
+  <div class="fact"><b>Four forms</b><p><b style="display:inline">Compact</b> around the camera; <b style="display:inline">minimal</b> when two activities run; <b style="display:inline">expanded</b> on a long press; <b style="display:inline">alert</b>, a short expanded pop with sound when an update matters.</p></div>
+  <div class="fact"><b>How it updates</b><p>FRH's server sends a Live Activity push (Apple ActivityKit) at each step. The phone never polls. An activity runs up to 8 hours, then stays on the Lock Screen for a while after it ends.</p></div>
+  <div class="fact no"><b>Not for the island</b><p>Chat messages, reminders, offers and receipts stay ordinary notifications (banners). Phones without a Dynamic Island show only the Lock Screen card.</p></div>
+</div>
+
+<h2>1 · Home visit <span class="tag">Main one</span></h2>
+<p class="lead">Starts when the team is assigned and ends after the visit. Same people and times as the prototype: Dr. Layla and Grace, arriving about 5:24 PM, gate code from the booking note.</p>
+<div class="row" data-row="visit"></div>
+
+<h2>2 · IV drip</h2>
+<p class="lead">A countdown while the nurse runs the drip, so a resting patient sees the time left without unlocking the app.</p>
+<div class="row" data-row="drip"></div>
+
+<h2>3 · Video consultation</h2>
+<p class="lead">Waiting in the queue, then an alert with Join the call the moment the doctor is ready.</p>
+<div class="row" data-row="tele"></div>
+
+<h2>4 · Lab results</h2>
+<p class="lead">From sample collection to results. The alert comes once the doctor has reviewed them, never before. The last tile shows two activities at once: the visit attaches to the island and the lab result takes the bubble.</p>
+<div class="row" data-row="lab"></div>
+<p class="note">All names, times and figures are placeholders, as in the rest of the prototype. Colours: the island is always black, FRH red is lifted to #FF5A5F so it reads on black, and iOS green marks here, ready and done.</p>
+</main>
+<script src="js/icons.js?f=19"></script>
+<script src="js/v19-island.js?f=23"></script>
+<script src="js/island-preview.js?f=23"></script>
+</body>
+</html>

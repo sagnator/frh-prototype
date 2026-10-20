@@ -1,0 +1,29 @@
+/* Final v15: navigation B+ */
+.v15-greet{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.v15-greet .hx-greet{margin:0;flex:1;min-width:0}
+.v15-ask{flex:none;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:0;border-radius:99px;background:var(--ink);color:#fff;font:600 13px var(--font);cursor:pointer;box-shadow:0 8px 18px -10px rgba(0,0,0,.5)}
+.v15-ask svg{color:#F2C14E}
+.v15-sheet{text-align:left}
+.v15-sheet h2{margin:2px 0 2px}
+.v15-sub{margin:0 0 12px;color:var(--muted);font-size:13px}
+.v15-opt{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.v15-opt .mid{flex:1;display:flex;flex-direction:column;gap:2px}
+.v15-opt b{font-size:14.5px;font-weight:600}
+.v15-opt small{font-size:12px;color:var(--muted);line-height:1.35}
+.v15-oi{width:38px;height:38px;border-radius:12px;background:#FBEFF0;color:var(--red);display:flex;align-items:center;justify-content:center;flex:none}
+.v15-steps{margin:10px 0 16px;padding-left:22px;display:flex;flex-direction:column;gap:10px}
+.v15-steps b{display:block;font-size:14px;font-weight:600}
+.v15-steps span{font-size:12.5px;color:var(--muted)}
+.v15-go{width:100%}
+/* cart bar above the tab bar on tab roots */
+.scr.home .hx-sticky,.scr.v15-tabroot .hx-sticky{bottom:96px}
+.scr.home .scr-body,.scr.v15-tabroot .scr-body{padding-bottom:170px}
+/* five tabs fit the bar */
+.m-tabbar .m-tab{min-width:0;flex:1}
+.m-tabbar .m-tab-l{font-size:10.5px;white-space:nowrap}
+/* Final v16: Home header = greeting · Ask anything · alerts */
+.v16-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.v16-hdr .hx-greet{margin:2px 0 0;font-size:28px;line-height:1.15}
+.v16-hdr .hx-acts{display:flex;align-items:center;gap:8px;flex:none;padding-top:4px}
+.v16-hdr .hx-greet{font-size:30px;line-height:1.1}
+.v16-hdr .hx-greet small{display:block;font-size:15px;line-height:1.3;font-weight:500;color:var(--muted);margin-bottom:2px}

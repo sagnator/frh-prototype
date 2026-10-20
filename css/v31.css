@@ -1,0 +1,29 @@
+/* Final v31: laurel header + three structures below (v31Reviews in js/dev-book.js) */
+.v31-ver{display:flex;align-items:center;justify-content:center;gap:5px;margin:8px 0 0;font-size:12px;color:var(--ok,#0E7350)}
+.v31-ver svg{flex:none}
+/* D1: one row of scores, Airbnb style (label, big number, icon) */
+.v31-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:18px;padding:14px 0;border-top:1px solid var(--line,#E7E7E7);border-bottom:1px solid var(--line,#E7E7E7)}
+.v31-row div{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:0 10px}
+.v31-row div:first-child{padding-left:2px}
+.v31-row div+div{border-left:1px solid var(--line,#E7E7E7)}
+.v31-row small{font-size:12px;color:var(--ink-2,#3D3D3D);font-weight:500}
+.v31-row b{font-size:18px;font-weight:600;color:var(--ink,#141414);font-variant-numeric:tabular-nums}
+.v31-row svg{margin-top:10px;color:var(--ink,#141414)}
+/* D2: rings */
+.v31-rings{margin-top:18px}
+/* D3: mentions as bars with counts */
+.v31-ment{margin-top:18px;padding:14px 16px;border:1px solid var(--line,#E7E7E7);border-radius:18px;background:#fff}
+.v31-mh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.v31-mh b{font-size:14px;font-weight:600;color:var(--ink,#141414)}
+.v31-mh span{font-size:12.5px;font-weight:600;color:var(--ok,#0E7350)}
+.v31-mr{display:grid;grid-template-columns:118px 1fr 34px;align-items:center;gap:10px;padding:5px 0}
+.v31-mr span{font-size:13px;color:var(--ink-2,#3D3D3D);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v31-mr i{height:6px;border-radius:3px;background:#ECECEC;overflow:hidden}
+.v31-mr em{display:block;height:100%;border-radius:3px;background:var(--ink,#141414)}
+.v31-mr b{text-align:right;font-size:13px;font-weight:600;color:var(--ink,#141414);font-variant-numeric:tabular-nums}
+/* review cards and rows without the per-review badge */
+.v31-rc .s-stars{margin:0;justify-content:flex-start}
+.v31-d{display:block;font-size:11.5px;color:var(--muted,#6B6B6B)}
+.v31 .v29-rh .s-stars{margin:0 0 0 auto;flex:none}
+.v31-cards{margin-top:16px}
+.v26-who small.v31-d,.v29-rn small.v31-d{display:block;color:var(--muted,#6B6B6B)}

@@ -1,0 +1,93 @@
+/* Final v19: Dynamic Island Live Activities (js/v19-island.js). The island is always black;
+   FRH red is lifted to #FF5A5F so it reads on black, and iOS green marks "here / ready / done". */
+.di-isl{position:absolute;z-index:67;background:#000;color:#fff;overflow:hidden;pointer-events:none;font-family:var(--ios,-apple-system,"SF Pro Text",Helvetica,Arial,sans-serif);
+  transition:width .52s cubic-bezier(.3,1.22,.42,1),height .52s cubic-bezier(.3,1.22,.42,1),left .52s cubic-bezier(.3,1.22,.42,1),top .52s cubic-bezier(.3,1.22,.42,1),border-radius .52s cubic-bezier(.3,1.22,.42,1),box-shadow .4s,opacity .3s,transform .4s;
+  top:11px;left:134.5px;width:124px;height:36px;border-radius:18px}
+.di-isl.on{pointer-events:auto;cursor:pointer}
+.di-isl.x{box-shadow:0 14px 34px -10px rgba(0,0,0,.55)}
+.di-isl.alerting{box-shadow:0 0 0 1.5px rgba(255,90,95,.6),0 14px 34px -10px rgba(0,0,0,.55)}   /* iOS keyline tint on alert updates */
+.di-isl2{opacity:0;transform:scale(.3)}
+.di-isl2.on{opacity:1;transform:none}
+.di-catch{position:absolute;inset:0;z-index:66;display:none}
+.di-catch.on{display:block}
+.di-c{position:absolute;inset:0}
+.di-in{animation:diIn .34s ease .14s both}
+@keyframes diIn{from{opacity:0;filter:blur(5px);transform:scale(.94)}to{opacity:1;filter:none;transform:none}}
+
+/* compact and minimal */
+.di-c.compact{display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 7px}
+.di-c.minimal{display:flex;align-items:center;padding-left:7px}
+.di-isl2 .di-c.minimal{justify-content:center;padding:0}
+.di-l{position:relative;display:flex;align-items:center}
+.di-r{display:flex;align-items:center}
+.di-av{width:24px;height:24px;border-radius:50%;object-fit:cover;display:block}
+.di-av.ring{box-shadow:0 0 0 1.5px #000,0 0 0 3px #FF5A5F}
+.di-av.ring.green{box-shadow:0 0 0 1.5px #000,0 0 0 3px #30D158}
+.di-tile{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,90,95,.2);color:#FF5A5F;flex:none}
+.di-tile svg{width:15px;height:15px}
+.di-tile.green{background:rgba(48,209,88,.2);color:#30D158}
+.di-t,.di-c.compact .di-timer{font-weight:600;font-size:13.5px;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:#fff;white-space:nowrap}
+.di-t.red{color:#FF6B6F}.di-t.green{color:#30D158}
+.di-tn{display:flex;flex-direction:column;align-items:center;line-height:1;font-variant-numeric:tabular-nums}
+.di-tn b{font-weight:700;font-size:14px;letter-spacing:-.02em}
+.di-tn small{font-weight:600;font-size:8.5px;letter-spacing:.02em;margin-top:1px;opacity:.75}
+.di-tn.red{color:#FF6B6F}
+.di-t svg{display:block}
+
+/* status bar: clock and icons centred in the two "ears" either side of the island, where iOS puts them,
+   so a compact Live Activity never covers them */
+.sb-time{padding:4px 14px 0 0}
+.sb-icons{padding:4px 18px 0 0;justify-content:flex-end}
+.di-mbadge{position:absolute;right:-7px;bottom:-5px;min-width:17px;height:17px;padding:0 3px;border-radius:9px;background:#FF5A5F;color:#fff;font-style:normal;font-weight:700;font-size:10px;line-height:17px;text-align:center;border:1.5px solid #000}
+.di-ring{position:relative;width:26px;height:26px;border-radius:50%;background:conic-gradient(#FF5A5F calc(var(--p) * 1%),rgba(255,255,255,.2) 0);display:flex;align-items:center;justify-content:center;color:#FF5A5F}
+.di-ring::before{content:'';position:absolute;inset:3px;border-radius:50%;background:#000}
+.di-ring svg{position:relative}
+
+/* expanded and alert: leading and trailing sit beside the camera, text below it, actions at the bottom */
+.di-xl{position:absolute;left:18px;top:15px;display:flex}
+.di-xt{position:absolute;right:20px;top:15px;text-align:right}
+.di-stack{display:flex}
+.di-stack .di-av{width:40px;height:40px;border:2px solid #000}
+.di-stack .di-av+.di-av{margin-left:-12px}
+.di-av.big{width:40px;height:40px}
+.di-tile.big{width:40px;height:40px;border-radius:13px}
+.di-tile.big svg{width:21px;height:21px}
+.di-big{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap}
+.di-big b{font-weight:600;font-size:28px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.di-big small{font-weight:500;font-size:13px;color:rgba(255,255,255,.6)}
+.di-big.red b{color:#FF6B6F}.di-big.green b{color:#30D158}
+.di-mid{position:absolute;left:20px;right:20px;top:64px;min-width:0}
+.di-mid b{display:block;font-weight:600;font-size:15.5px;line-height:1.25;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di-mid small{display:block;margin-top:2px;font-size:13px;line-height:1.3;color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di-bot{position:absolute;left:20px;right:16px;bottom:14px;height:36px;display:flex;align-items:center;gap:14px}
+.di-track{position:relative;flex:1;height:22px}
+.di-line{position:absolute;left:0;right:0;top:10px;height:3px;border-radius:2px;background:rgba(255,255,255,.2)}
+.di-line i{display:block;height:100%;border-radius:2px;background:#FF5A5F}
+.di-track.green .di-line i,.di-track.green .di-dot.on{background:#30D158}
+.di-dot{position:absolute;top:7px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#3A3A3C}
+.di-dot.on{background:#FF5A5F}
+.di-car{position:absolute;top:0;margin-left:-11px;width:22px;height:22px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #000}
+.di-car svg{width:14px;height:14px}
+.di-btns{display:flex;gap:10px;flex:none}
+.di-btn{width:36px;height:36px;border-radius:50%;background:#2C2C2E;color:#fff;display:flex;align-items:center;justify-content:center}
+.di-btn.green{background:#30D158}
+.di-bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.2);overflow:hidden}
+.di-bar i{display:block;height:100%;border-radius:3px;background:#FF5A5F}
+.di-note{display:flex;align-items:center;gap:8px;font-weight:500;font-size:12.5px;line-height:1.3;color:rgba(255,255,255,.62)}
+.di-note svg{flex:none}
+.di-wide{flex:1;display:flex}
+.di-pill{flex:1;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600;font-size:14.5px;background:#2C2C2E;color:#fff}
+.di-pill.light{background:#fff;color:#000}
+.di-pill.green{background:#30D158;color:#000}
+
+/* Lock Screen card (preview page) */
+.di-lock{width:361px;border-radius:24px;background:rgba(18,18,20,.8);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);color:#fff;padding:13px 16px 15px;font-family:var(--ios,-apple-system,"SF Pro Text",Helvetica,Arial,sans-serif)}
+.di-lh{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(255,255,255,.7)}
+.di-lapp{width:20px;height:20px;border-radius:5px;overflow:hidden;display:flex}
+.di-lapp svg{width:20px;height:20px}
+.di-lt{margin-left:auto}
+.di-lb{display:flex;align-items:center;gap:12px;margin-top:11px}
+.di-lm{min-width:0}
+.di-lm b{display:block;font-weight:600;font-size:16px;line-height:1.25}
+.di-lm small{display:block;font-size:13px;color:rgba(255,255,255,.62);margin-top:2px}
+.di-lock .di-bot{position:static;margin-top:13px;padding:0}

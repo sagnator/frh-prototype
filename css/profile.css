@@ -1,0 +1,126 @@
+/* ============ FRH prototype — flow 8: profile & settings ============
+   Every class here is prefixed p- so it cannot collide with the shared
+   component library in flows.css or with another flow's stylesheet. */
+
+/* ---------- shared bits ---------- */
+.p-ava{width:60px;height:60px;border-radius:50%;background:var(--red-100);color:var(--red-800);font-weight:800;font-size:20px;letter-spacing:.01em;display:grid;place-items:center;flex:none}
+.p-ava.sm{width:44px;height:44px;font-size:15px}
+.p-ver{font-size:11.5px;color:var(--muted);text-align:center;margin:16px 0 4px;line-height:1.5}
+.p-list>*+*{margin-top:12px}
+
+/* tile tints beyond the four in flows.css (notification types) */
+.tile.p-amber{background:var(--warn-bg);color:var(--warn)}
+.tile.p-teal{background:#E4F3F3;color:#0D6B6B}
+.tile.p-lime{background:#F0F6E2;color:#4F6B16}
+.tile.p-ink{background:#F1ECEA;color:var(--ink-2)}
+
+/* a menu row that behaves as a button (sits inside .info-card) */
+.p-row{width:100%;background:none;border:0;border-top:1px solid #F4ECEA;text-align:left;cursor:pointer;font-family:var(--font);color:var(--ink)}
+.p-row:first-child{border-top:0}
+.p-row .ic-chevRight{color:#C9B8B5;flex:none}
+.p-row:active{background:#FDF7F6}
+
+/* ---------- 8.1 Profile home ---------- */
+.p-me{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin-top:2px}
+.p-me-txt{flex:1;min-width:0}
+.p-me-txt b{display:block;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.p-me-txt small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p-member{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--red-50);color:var(--red-800);font-size:11.5px;font-weight:600;line-height:1.4}
+.p-member .ic-shieldCheck{flex:none}
+.p-member b{font-weight:800}
+
+.p-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.p-qa{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 8px;text-align:center;cursor:pointer;font-family:var(--font);color:var(--ink)}
+.p-qa .tile{width:40px;height:40px;border-radius:13px;margin:0 auto}
+.p-qa b{display:block;font-size:13px;font-weight:800;margin-top:9px;line-height:1.25}
+.p-qa small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.p-qa:active{transform:scale(.98)}
+
+.p-menu{margin-top:14px}
+.p-logout{margin-top:18px;color:var(--red)}
+.p-logout .ic-lock{color:var(--red)}
+
+/* ---------- 8.2 / 8.3 patient & address cards ---------- */
+.p-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px}
+.p-card-top{display:flex;align-items:center;gap:12px}
+.p-card-top .tile{width:44px;height:44px;border-radius:14px}
+.p-card-top .icon-btn{width:36px;height:36px;flex:none}
+.p-card-id{flex:1;min-width:0}
+.p-card-id b{display:block;font-size:15.5px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.p-card-id b .pill{vertical-align:2px;margin-left:7px}
+.p-card-id small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.p-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;margin-top:13px;padding-top:13px;border-top:1px solid #F4ECEA}
+.p-meta small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.p-meta b{display:block;font-size:13.5px;font-weight:700;margin-top:3px}
+.p-meta-wide{grid-column:1 / -1}
+.p-blood{color:var(--red)}
+.p-card-note{display:flex;align-items:flex-start;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid #F4ECEA;font-size:11.5px;line-height:1.45;color:var(--muted)}
+.p-card-note svg{flex:none;margin-top:2px;color:#C9B8B5}
+.p-card-foot{margin-top:11px}
+.p-card-foot .mini-btn{width:100%}
+
+/* ---------- 8.5 Notifications ---------- */
+.p-notif-list{margin-top:14px}
+.p-group{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.p-notif-list>.p-group:first-child{margin-top:4px}
+.p-notif{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;font-family:var(--font);color:var(--ink);background:#FAF4F2;border:1px solid #F0E7E4;border-radius:18px;padding:13px;cursor:pointer}
+.p-notif+.p-notif{margin-top:8px}
+.p-notif .tile{width:38px;height:38px;border-radius:13px;opacity:.72}
+.p-notif .p-n-mid{flex:1;min-width:0}
+.p-notif .p-n-mid b{display:block;font-size:13.5px;font-weight:700;line-height:1.3;color:var(--ink-2)}
+.p-notif .p-n-mid span{display:block;font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px}
+.p-notif .p-n-mid small{display:block;font-size:11px;color:#A89A97;font-weight:700;margin-top:6px}
+.p-notif.unread{background:#fff;border-color:var(--line);box-shadow:0 8px 18px -14px rgba(60,20,25,.6)}
+.p-notif.unread .tile{opacity:1}
+.p-notif.unread .p-n-mid b{font-weight:800;color:var(--ink)}
+.p-notif.unread .p-n-mid span{color:var(--ink-2)}
+.p-notif .p-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex:none;margin-top:6px}
+.p-notif:active{transform:scale(.995)}
+
+/* ---------- policy text & long-form copy ---------- */
+.scr.p-policy-text .scr-body>.tile{margin:2px 0 14px}
+.p-doc-h1{font-size:25px}
+.p-updated{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:8px 0 0;font-weight:700}
+.p-doc{margin-top:6px}
+.p-doc h4{font-size:15px;font-weight:800;margin:20px 0 0;letter-spacing:-.01em}
+.p-doc p{font-size:13.5px;line-height:1.62;color:var(--ink-2);margin:8px 0 0}
+.p-doc-lead{font-size:14px;line-height:1.62;color:var(--ink-2);margin:16px 0 0}
+
+/* ---------- 8.7 About us ---------- */
+.p-hero{border-radius:24px;padding:22px 18px;margin-top:2px;text-align:center;color:#fff;background:radial-gradient(130% 120% at 0% 0%,#E6353E 0%,#D71F32 46%,#A51029 100%)}
+.p-hero svg{display:block;margin:0 auto}
+.p-hero h3{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:10px 0 0}
+.p-hero p{font-size:13.5px;color:rgba(255,255,255,.86);margin:4px 0 12px}
+.p-hero .pill{background:rgba(255,255,255,.2);color:#fff}
+.p-quote{display:flex;gap:12px;align-items:flex-start;border-radius:20px;padding:16px;background:var(--red-50);border:1px solid #F6DCD9}
+.p-quote svg{flex:none;color:var(--red);margin-top:2px}
+.p-quote p{margin:0;font-size:14px;line-height:1.55;font-weight:700;color:var(--red-900)}
+.p-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.p-stats div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+.p-stats b{display:block;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--red)}
+.p-stats small{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600}
+.p-lic{border-radius:20px;border:1px solid #CFEADC;background:#F3FAF6;padding:16px;margin-top:0}
+.p-lic-top{display:flex;align-items:center;gap:11px;color:var(--ok)}
+.p-lic-top b{display:block;font-size:14.5px;font-weight:800;color:#0E6B4A}
+.p-lic-top small{display:block;font-size:12.5px;color:#2C6B55;font-weight:700;letter-spacing:.03em;margin-top:2px}
+.p-lic p{font-size:12.5px;line-height:1.5;color:#2C6B55;margin:10px 0 0}
+.p-chips{display:flex;flex-wrap:wrap;gap:8px}
+.p-chip{display:inline-flex;align-items:center;height:34px;padding:0 13px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--ink-2);font-family:var(--font)}
+.p-chip.pick{cursor:pointer}
+.p-chip.on{border-color:var(--red);background:var(--red-50);color:var(--red-800)}
+
+/* ---------- 8.8 Help & support ---------- */
+.p-form{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px}
+.p-form label{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.p-textarea{display:block;width:100%;min-height:92px;border:1px solid var(--line);border-radius:14px;background:var(--bg);padding:12px;font-size:13px;line-height:1.5;color:var(--muted);text-align:left;font-family:var(--font);cursor:pointer}
+.p-form-foot{display:flex;align-items:flex-start;gap:7px;margin-top:12px;font-size:11px;line-height:1.45;color:var(--muted)}
+.p-form-foot svg{flex:none;margin-top:1px;color:#C9B8B5}
+
+/* ---------- 8.9 Change language ---------- */
+.p-lang{gap:12px}
+.p-lang .flag{margin-left:2px}
+.p-lang-txt{flex:1;min-width:0}
+.p-lang-txt b{display:block;font-size:15px;font-weight:800;line-height:1.3}
+.p-lang-txt small{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.p-lang.on .p-lang-txt small{color:var(--red-700)}
+.p-lang-notes .flag-note+.flag-note{margin-top:8px}

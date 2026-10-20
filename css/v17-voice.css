@@ -1,0 +1,42 @@
+/* Final v17: Ask anything voice assistant (based on the agency's sample screen) */
+.scr.v17{background:linear-gradient(180deg,#6FAAF2 0%,#A9CDF8 30%,#E6F1FD 58%,#F4F5F7 100%);color:#24456E}
+.v17-nav{position:relative;z-index:2}
+.v17-nav .nav-title{color:#fff;font-weight:500}
+.v17-back,.v17-mute{width:56px;height:32px;border-radius:99px;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.28);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.v17-mute{width:40px}
+.v17-stage{position:absolute;left:0;right:0;top:150px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 28px}
+.v17-orb{position:relative;width:132px;height:132px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 12%,rgba(255,255,255,.2) 30%,transparent 55%),radial-gradient(circle at 60% 65%,rgba(170,120,255,.75),transparent 55%),radial-gradient(circle at 40% 45%,#2E6BFF,#7FB2FF 60%,#E8F1FF 100%);box-shadow:0 18px 40px -16px rgba(40,90,200,.6),inset 0 0 0 1px rgba(255,255,255,.6);animation:v17breathe 4.2s ease-in-out infinite}
+.v17-orb i{position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(255,255,255,.55);opacity:0}
+.v17.speaking .v17-orb{animation:v17talk .55s ease-in-out infinite alternate}
+.v17.listening .v17-orb i{animation:v17ring 1.8s ease-out infinite}
+.v17.listening .v17-orb i:nth-child(2){animation-delay:.6s}
+.v17.listening .v17-orb i:nth-child(3){animation-delay:1.2s}
+@keyframes v17breathe{0%,100%{transform:scale(1);filter:hue-rotate(0)}50%{transform:scale(1.04);filter:hue-rotate(-12deg)}}
+@keyframes v17talk{from{transform:scale(.97)}to{transform:scale(1.09)}}
+@keyframes v17ring{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+.v17-line{margin:26px 0 0;font:500 24px/1.25 var(--font);color:#3E6795;max-width:300px;transition:opacity .25s}
+.v17-heard{margin:10px 0 0;min-height:20px;font:500 14px/1.4 var(--font);color:#24456E;opacity:.85;font-style:italic}
+.v17-status{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font:600 12px var(--font);color:#3E6795;opacity:.85}
+.v17-status i{width:7px;height:7px;border-radius:50%;background:#2E6BFF}
+.v17.listening .v17-status i{animation:v17blink 1s infinite}
+@keyframes v17blink{50%{opacity:.25}}
+.v17-act{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.v17-act .btn{height:40px;padding:0 16px;border-radius:99px;font-size:13.5px}
+.v17-steps{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;width:100%;max-width:320px}
+.v17-steps span{background:rgba(255,255,255,.7);border-radius:12px;padding:8px 10px;font:600 11.5px/1.3 var(--font);color:#24456E;text-align:left}
+.v17-steps b{display:block;color:#D71F32;font-size:10.5px}
+.v17-opts{position:absolute;left:16px;right:16px;bottom:96px;display:flex;flex-direction:column;gap:10px}
+.v17-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 12px 10px 14px;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:rgba(255,255,255,.72);box-shadow:0 10px 24px -18px rgba(30,60,110,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font:500 15px var(--font);color:#1C2B40;text-align:left;cursor:pointer}
+.v17-opt .oi{width:34px;height:34px;border-radius:11px;background:#fff;color:#E5484D;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 10px -6px rgba(0,0,0,.2)}
+.v17-opt .mid{flex:1}
+.v17-faces{display:flex;flex:none}
+.v17-faces img{width:38px;height:44px;object-fit:cover;border-radius:10px;border:2px solid #fff;margin-left:-10px;background:#F3E3E3}
+.v17-foot{position:absolute;left:0;right:0;bottom:30px;display:flex;align-items:center;justify-content:center;gap:12px}
+.v17-mic{width:52px;height:52px;border-radius:50%;border:0;background:#1C2B40;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 22px -10px rgba(20,40,80,.6)}
+.v17.listening .v17-mic{background:#E5484D}
+.v17-type{border:0;background:none;font:600 13px var(--font);color:#3E6795;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.v17-mute{font:700 11px var(--font);letter-spacing:.02em}
+/* an answer on screen: smaller orb and text so the steps and buttons fit above the options */
+.v17.answer .v17-stage{top:118px}
+.v17.answer .v17-orb{width:84px;height:84px}
+.v17.answer .v17-line{font-size:18px;margin-top:16px}

@@ -1,0 +1,39 @@
+/* Layering: floating bars always sit above scrolling content. Loaded last. */
+.scr .tabbar,.scr .m-tabbar{z-index:45}
+.scr-foot{position:relative;z-index:45}
+.b-sticky,.b-topbar{z-index:46}
+.kq.fn.ret.go{background:#0A7AFF;color:#fff}
+/* presenter panel: final-version card */
+.fin-tally{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:2px 0 12px}
+.fin-tally div{border-radius:10px;padding:8px 4px;text-align:center;background:#FAF6F5}
+.fin-tally b{display:block;font-size:18px;font-weight:800;line-height:1}
+.fin-tally span{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:4px;color:var(--muted)}
+.fin-link{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:10px;background:#1C1214;color:#fff;font:700 12.5px var(--font);text-decoration:none}
+.fin-link:hover{background:#D71F32}
+.scn-actions+.scn-actions{margin-top:8px}
+/* v14: count of screens added after the client's dev-team PDF */
+.tb-chip.tb-new{background:#1C1214;color:#fff;border-color:#1C1214}
+.tb-chip.tb-new b{color:#F2C14E;font-weight:800;margin-right:2px}
+/* v14: drawer listing what was added after the dev-team PDF */
+button.tb-chip.tb-new{cursor:pointer;font:inherit}
+.ns-ov{position:fixed;inset:0;z-index:200;background:rgba(20,12,12,.28);opacity:0;pointer-events:none;transition:opacity .2s}
+.ns-ov.on{opacity:1;pointer-events:auto}
+.ns-box{position:absolute;top:12px;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));overflow:auto;background:#fff;border-radius:22px;padding:18px 18px 24px;box-shadow:0 24px 60px -24px rgba(0,0,0,.45);transform:translateX(24px);transition:transform .25s}
+.ns-ov.on .ns-box{transform:none}
+.ns-h{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.ns-h b{display:block;font-size:20px;line-height:1.2}
+.ns-h span{display:block;font-size:12.5px;color:#6B6B6B;margin-top:3px}
+.ns-x{width:32px;height:32px;border-radius:50%;border:1px solid #ECE7E6;background:#fff;font-size:18px;cursor:pointer;flex:none}
+.ns-box h4{margin:18px 0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:#6B6B6B}
+.ns-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:9px 12px;margin-bottom:5px;border:1px solid #ECE7E6;border-radius:12px;background:#fff;font:500 13.5px/1.3 inherit;font-family:inherit;color:#1C1214;text-align:left;cursor:pointer}
+.ns-row small{display:block;font-size:11.5px;color:#6B6B6B;margin-top:1px}
+.ns-row em{font-style:normal;font-size:11.5px;font-weight:700;color:#1C1214;background:#F3EFEE;border-radius:99px;padding:3px 9px}
+.ns-row:hover{border-color:#1C1214}
+.ns-row.on{border-color:#D71F32;background:#FFF8F8}
+.ns-row.off{cursor:default;color:#4A3B3E}
+.ns-pops{display:grid;grid-template-columns:1fr 1fr;gap:0 6px}
+.ns-pops .ns-row{font-size:12.5px;padding:8px 10px}
+@media (max-width:520px){.ns-pops{grid-template-columns:1fr}}
+/* the drawer header stays put while the list scrolls under it */
+.ns-box{padding-top:0}
+.ns-h{position:sticky;top:0;z-index:2;background:#fff;margin:0 -18px 6px;padding:18px 18px 12px;border-bottom:1px solid #F0EBEA}

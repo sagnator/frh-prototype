@@ -1,0 +1,31 @@
+/* Final v28: How it works without "when" labels, in three layouts (v27How in js/dev-book.js) */
+/* A, timeline: the title now sits level with its icon */
+.v28-line li>div{padding-top:2px}
+.v28-line b{margin-top:0}
+.v28-line li{padding-bottom:22px}
+.v28-line li:not(:last-child)::before{top:46px}
+
+/* B, numbered: black number circles on a solid line */
+.v28-num{list-style:none;margin:4px 0 0;padding:0}
+.v28-num li{position:relative;display:flex;gap:14px;padding-bottom:20px}
+.v28-num li:last-child{padding-bottom:0}
+.v28-num li:not(:last-child)::before{content:'';position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--ink,#141414);border-radius:1px}
+.v28-n{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink,#141414);color:#fff;font-size:13px;font-weight:600;position:relative;z-index:1}
+.v28-num li>div{min-width:0;padding-top:3px}
+.v28-num b{display:block;font-size:15px;font-weight:600;color:var(--ink,#141414)}
+.v28-num p{margin:3px 0 0;font-size:13px;line-height:1.45;color:var(--muted,#6B6B6B)}
+
+/* C, cards: swipe sideways */
+.v28-cards{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:4px -24px 0;padding:2px 24px 4px;scroll-padding-left:24px;scrollbar-width:none}
+.v28-cards::-webkit-scrollbar{display:none}
+.v28-card{flex:0 0 62%;scroll-snap-align:start;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line,#E7E7E7);border-radius:18px;padding:14px 14px 16px}
+.v28-ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.v28-ci{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--ink,#141414);color:#fff}
+.v28-ch em{font-style:normal;font-size:12px;font-weight:600;color:var(--muted,#6B6B6B);font-variant-numeric:tabular-nums}
+.v28-card b{font-size:15px;font-weight:600;color:var(--ink,#141414)}
+.v28-card p{margin:4px 0 0;font-size:13px;line-height:1.45;color:var(--muted,#6B6B6B)}
+
+/* Go to cart: a short pulse when the visit is added (the top cart button is gone once added) */
+@keyframes v28pop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+.v28-pop{animation:v28pop .45s cubic-bezier(.3,1.4,.5,1)}
+@media (prefers-reduced-motion:reduce){.v28-pop{animation:none}}

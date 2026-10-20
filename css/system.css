@@ -1,0 +1,13 @@
+/* ============ One card system — loaded last so it normalises every file ============
+   Three radii and one elevation rule, applied across all screens (Figma note 3). */
+.card,.appt,.info-card,.b-item,.b-svc,.b-sum,.b-sim,.b-pick,.b-coupon,.test,.svc2,.pro,.tip,.offer,
+.empty-card,.acc,.rate-box,.timer-card,.refund-card,.guarantee,.reason,.prefs,.sum,.h-trust,.b-stats,
+.chat-teaser,.guest-bar,.b-note-box,.seg-tabs,.b-applied{border-radius:var(--r-card)}
+.hero-card,.doc-call,.car-card,.h-hero,.b-hero,.map,.b-map{border-radius:var(--r-hero)}
+.b-hero,.map{border-radius:0}
+.tile,.card-ic,.svc-ic,.b-thumb,.es-ic,.sh-ic,.a-ic,.ci,.dc-ic,.ct-ic,.g-ic,.ei,.si{border-radius:var(--r-mid)}
+.mini-btn,.b-chip,.slot,.date-chip,.cbx,.b-check{border-radius:var(--r-sm)}
+/* flat cards: border does the work, elevation is reserved for things that float */
+.appt,.info-card,.b-item,.b-sum,.b-svc,.b-sim,.test,.svc2,.pro,.tip,.empty-card,.acc,.rate-box,
+.timer-card,.b-pick,.reason,.prefs,.sum,.h-trust,.b-stats{box-shadow:none}
+.card{box-shadow:0 1px 2px rgba(28,18,20,.04),0 14px 30px -24px rgba(60,20,25,.3)}

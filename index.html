@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRH Healthcare — Final v41</title>
+<meta name="description" content="Final interactive prototype of the FRH Healthcare patient app: the agency design with the necessary items from the client dev-team spec.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Crect width=%2248%22 height=%2248%22 rx=%2211%22 fill=%22%23D71F32%22/%3E%3Cg transform=%22translate(5.2 12.6) scale(0.192)%22%3E%3Cpath fill=%22%23fff%22 fill-rule=%22evenodd%22 d=%22M157.39 9.79 L156.94 9.01 L156.3 8.37 L155.73 8.01 L155.31 7.83 L154.43 7.66 L112.8 7.65 L112.14 7.71 L111.5 7.9 L110.91 8.21 L110.56 8.48 L109.97 9.13 L100.57 24.7 L79.36 24.7 L77.84 24.8 L76.32 25.09 L75.56 25.31 L74.82 25.58 L73.36 26.24 L71.98 27.08 L71.32 27.55 L70.09 28.62 L69.51 29.2 L68.48 30.45 L68.02 31.11 L67.22 32.5 L66.6 33.96 L66.36 34.7 L66.02 36.2 L65.25 41 L61.5 41.01 L60.78 41.13 L60.09 41.39 L59.28 41.93 L58.63 42.67 L58.2 43.54 L58.01 44.5 L58.03 45.24 L58.13 45.72 L58.29 46.19 L58.63 46.83 L59.1 47.4 L59.47 47.73 L60.31 48.21 L60.78 48.37 L61.5 48.49 L67.33 48.52 L68.11 48.76 L68.65 49.12 L68.98 49.48 L69.31 50.04 L69.48 50.67 L69.49 51.16 L69.41 51.65 L69.17 52.25 L68.88 52.65 L68.39 53.08 L67.8 53.37 L67 53.5 L42.9 53.5 L42.12 53.58 L41.37 53.8 L40.68 54.17 L39.89 54.86 L39.44 55.5 L39.11 56.21 L38.91 57.24 L38.93 58.02 L39.2 59.03 L39.73 59.94 L40.46 60.67 L41.37 61.2 L42.38 61.47 L61.97 61.5 L61.96 61.55 L64.05 61.55 L64.66 61.61 L65.26 61.79 L65.62 61.97 L66.13 62.33 L66.55 62.78 L66.78 63.12 L67.03 63.69 L67.17 64.29 L67.19 64.91 L67.09 65.52 L66.96 65.91 L66.67 66.45 L66.28 66.93 L65.8 67.32 L65.26 67.61 L64.66 67.79 L64.05 67.85 L77.05 67.85 L83.89 54.23 L84.45 53.61 L85.15 53.16 L85.53 53 L86.15 52.87 L86.98 52.89 L87.58 53.04 L88.32 53.43 L88.93 54 L89.37 54.7 L93.34 67.85 L101.25 67.85 L111.09 39.28 L111.51 38.57 L111.93 38.12 L112.26 37.88 L112.8 37.59 L113.19 37.46 L113.6 37.38 L114.21 37.36 L114.82 37.46 L115.4 37.68 L115.75 37.88 L116.23 38.28 L116.62 38.75 L116.91 39.3 L117.09 39.89 L117.14 40.29 L117.15 79.3 L122.76 69.44 L123.26 68.78 L123.57 68.51 L124.1 68.18 L124.68 67.96 L125.09 67.88 L129.12 67.85 L138.33 50.82 L138.86 50.19 L139.36 49.81 L139.91 49.54 L140.72 49.36 L141.34 49.37 L141.75 49.44 L142.14 49.56 L142.7 49.85 L143.03 50.09 L143.46 50.54 L143.8 51.06 L143.96 51.44 L147.54 67.85 L180.91 67.88 L181.71 68.09 L182.42 68.5 L182.87 68.92 L183.12 69.25 L183.48 69.99 L183.64 70.79 L183.59 71.61 L183.41 72.21 L183.23 72.58 L182.73 73.23 L182.25 73.62 L181.71 73.91 L181.11 74.09 L180.5 74.15 L145 74.15 L144.19 74.05 L143.62 73.83 L142.94 73.39 L142.4 72.78 L142.03 72.06 L139.72 61.49 L133.77 72.5 L133.42 73.02 L133.12 73.33 L132.61 73.71 L132.24 73.9 L131.63 74.09 L131 74.15 L127.33 74.15 L116.63 92.93 L116.09 93.56 L115.41 94.02 L114.63 94.29 L113.8 94.34 L113.19 94.25 L112.61 94.03 L112.09 93.7 L111.78 93.43 L111.38 92.95 L111.18 92.6 L110.96 92.02 L110.86 91.41 L110.85 59.33 L106.41 72.22 L105.99 72.93 L105.41 73.5 L104.89 73.83 L104.11 74.09 L103.5 74.15 L91 74.15 L90.2 74.05 L89.46 73.75 L88.96 73.4 L88.54 72.97 L88.05 72.1 L85.77 64.51 L81.72 72.59 L81.07 73.38 L80.2 73.91 L79.61 74.09 L79 74.15 L59.95 74.15 L62.49 74.19 L63.06 74.28 L63.92 74.67 L64.62 75.32 L64.92 75.81 L65.12 76.34 L65.21 76.91 L65.2 77.48 L65.07 78.04 L64.83 78.56 L64.5 79.03 L64.08 79.42 L63.24 79.87 L62.49 80.01 L49.48 80.03 L48.47 80.3 L47.78 80.67 L47.17 81.17 L46.67 81.78 L46.3 82.47 L46.08 83.22 L46 84 L46.08 84.78 L46.41 85.77 L46.83 86.44 L47.36 87.01 L48 87.46 L48.96 87.86 L49.74 87.99 L57.73 88 L56.42 96.35 L56.38 97.84 L56.43 98.58 L56.53 99.3 L56.89 100.69 L57.43 101.99 L58.15 103.18 L59.05 104.25 L60.1 105.16 L60.67 105.56 L61.28 105.91 L62.58 106.49 L63.97 106.88 L64.69 107 L66.17 107.1 L169.02 107.1 L170.54 107 L172.06 106.71 L172.82 106.49 L174.3 105.91 L175.72 105.16 L176.4 104.72 L177.69 103.73 L178.3 103.18 L179.4 101.99 L179.9 101.35 L180.78 100 L181.16 99.3 L181.78 97.84 L182.03 97.1 L182.36 95.6 L191.87 36.2 L191.96 35.45 L192.01 33.96 L191.85 32.5 L191.7 31.8 L191.25 30.45 L190.95 29.81 L190.23 28.62 L189.33 27.55 L188.29 26.64 L187.1 25.89 L185.81 25.31 L184.42 24.92 L183.69 24.8 L182.21 24.7 L161.37 24.7ZM114.75 14.55 L151.54 14.55 L154.23 24.7 L108.63 24.7ZM61.14 73.97 L62.08 73.69 L62.58 73.38 L63.01 72.98 L63.35 72.5 L63.59 71.96 L63.75 71 L63.69 70.41 L63.52 69.85 L63.24 69.33 L62.87 68.88 L62.08 68.31 L61.53 68.1 L60.95 68.01 L23.05 68.01 L22.1 68.23 L21.58 68.51 L21.13 68.88 L20.76 69.33 L20.48 69.85 L20.26 70.8 L20.28 71.39 L20.41 71.96 L20.65 72.5 L20.99 72.98 L21.42 73.38 L21.92 73.69 L22.47 73.9 L23.05 73.99ZM40.02 87.97 L40.54 87.86 L41.27 87.59 L41.94 87.17 L42.51 86.64 L42.96 86 L43.29 85.29 L43.47 84.52 L43.5 84 L43.47 83.48 L43.29 82.71 L42.96 82 L42.51 81.36 L41.94 80.83 L41.27 80.41 L40.54 80.14 L40.02 80.03 L3.74 80.01 L2.96 80.14 L2.47 80.3 L1.78 80.67 L1.36 80.99 L0.83 81.56 L0.41 82.23 L0.21 82.71 L0.03 83.48 L0.01 84.26 L0.14 85.04 L0.41 85.77 L0.83 86.44 L1.36 87.01 L2 87.46 L2.71 87.79 L3.48 87.97Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/page.css?f=19">
+<link rel="stylesheet" href="css/phone.css?f=19">
+<link rel="stylesheet" href="css/app.css?f=19">
+<link rel="stylesheet" href="css/flows.css?f=19">
+<link rel="stylesheet" href="css/book.css?f=19">
+<link rel="stylesheet" href="css/profile.css?f=19">
+<link rel="stylesheet" href="css/chat.css?f=19">
+<link rel="stylesheet" href="css/system.css?f=19">
+<link rel="stylesheet" href="css/dev-auth.css?f=19">
+<link rel="stylesheet" href="css/dev-home.css?f=19">
+<link rel="stylesheet" href="css/dev-book.css?f=19">
+<link rel="stylesheet" href="css/dev-appt.css?f=19">
+<link rel="stylesheet" href="css/dev-profile.css?f=19">
+<link rel="stylesheet" href="css/dev-member.css?f=19">
+<link rel="stylesheet" href="css/dev-changes.css?f=20">
+<link rel="stylesheet" href="css/theme-hers.css?f=19">
+<link rel="stylesheet" href="css/v15-nav.css?f=19">
+<link rel="stylesheet" href="css/v17-voice.css?f=20">
+<link rel="stylesheet" href="css/v18-tour.css?f=21">
+<link rel="stylesheet" href="css/v19-island.css?f=23">
+<link rel="stylesheet" href="css/v20-service.css?f=24">
+<link rel="stylesheet" href="css/v21-service.css?f=25">
+<link rel="stylesheet" href="css/v22-service.css?f=26">
+<link rel="stylesheet" href="css/v24.css?f=28">
+<link rel="stylesheet" href="css/v25.css?f=29">
+<link rel="stylesheet" href="css/v26.css?f=30">
+<link rel="stylesheet" href="css/v27.css?f=31">
+<link rel="stylesheet" href="css/v28.css?f=32">
+<link rel="stylesheet" href="css/v29.css?f=33">
+<link rel="stylesheet" href="css/v30.css?f=34">
+<link rel="stylesheet" href="css/v31.css?f=35">
+<link rel="stylesheet" href="css/v32.css?f=36">
+<link rel="stylesheet" href="css/v33.css?f=37">
+<link rel="stylesheet" href="css/v35.css?f=41">
+<link rel="stylesheet" href="css/v38.css?f=47">
+<link rel="stylesheet" href="css/v39.css?f=49">
+<link rel="stylesheet" href="css/v40.css?f=51">
+<link rel="stylesheet" href="css/v41.css?f=52">
+<link rel="stylesheet" href="css/v34-shell.css?f=44">
+</head>
+<body>
+<header class="topbar">
+  <div class="tb-brand">
+    <span id="tbIcon"></span>
+    <div class="tb-titles">
+      <strong>FRH Healthcare</strong>
+      <span>Patient app · interactive prototype</span>
+    </div>
+    <span class="tb-ver">v41</span>
+  </div>
+  <div class="tb-right">
+    <button type="button" id="v24CountBtn" class="tb-chip tb-new" title="Fresh designs to make, excluding duplicates and states"><b>89</b> fresh designs</button>
+    <button type="button" id="newScrBtn" class="tb-chip tb-new" title="Every screen and pop-up added after the client dev-team PDF"><b>25</b> new screens</button>
+    <span class="tb-meta">by Spiderworks</span>
+    <button class="tb-btn" id="restartBtn" type="button"></button>
+  </div>
+</header>
+
+<main class="stage">
+  <aside class="panel-l" id="panelL" aria-label="Screen index"></aside>
+
+  <section class="device-col" aria-label="iPhone prototype">
+    <div class="device-fit" id="deviceFit">
+      <div class="iphone" id="iphone">
+        <span class="hw hw-action"></span><span class="hw hw-volup"></span><span class="hw hw-voldn"></span><span class="hw hw-power"></span>
+        <div class="bezel">
+          <div class="screen" id="screen">
+            <div class="ios-home" id="iosHome"></div>
+            <div class="app" id="app"></div>
+            <div class="launch" id="launch"></div>
+            <div class="sheet-layer" id="sheetLayer"></div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+            <div class="kb" id="kb"></div>
+            <div class="banner" id="banner" role="button" tabindex="0" aria-label="Incoming message notification"></div>
+            <div class="statusbar light" id="statusbar"></div>
+            <div class="island"></div>
+            <button class="home-ind light" id="homeInd" type="button" aria-label="Go to the iPhone home screen" title="Home screen"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption" id="caption"></div>
+  </section>
+
+  <aside class="panel" id="panel" aria-label="Prototype controls"></aside>
+</main>
+
+<script src="js/icons.js?f=52"></script>
+<script src="js/data.js?f=19"></script>
+<script src="js/data-book.js?f=19"></script>
+<script src="js/data-profile.js?f=19"></script>
+<script src="js/data-chat.js?f=19"></script>
+<script src="js/core.js?f=43"></script>
+<script src="js/screens.js?f=19"></script>
+<script src="js/screens-home.js?f=19"></script>
+<script src="js/screens-appt.js?f=19"></script>
+<script src="js/screens-book.js?f=19"></script>
+<script src="js/screens-profile.js?f=19"></script>
+<script src="js/screens-chat.js?f=19"></script>
+<script src="js/dev-changes.js?f=19"></script>
+<script src="js/dev-auth.js?f=19"></script>
+<script src="js/dev-home.js?f=19"></script>
+<script src="js/dev-book.js?f=36"></script>
+<script src="js/dev-appt.js?f=48"></script>
+<script src="js/dev-profile.js?f=37"></script>
+<script src="js/dev-member.js?f=19"></script>
+<script src="js/v15-nav.js?f=19"></script>
+<script src="js/v17-voice.js?f=36"></script>
+<script src="js/v18-tour.js?f=27"></script>
+<script src="js/v19-island.js?f=23"></script>
+<script src="js/theme-hers.js?f=19"></script>
+<script src="js/v35-notifs.js?f=41"></script>
+<script src="js/v38-doctors.js?f=47"></script>
+<script src="js/v39-cards.js?f=49"></script>
+<script src="js/v40-loc.js?f=51"></script>
+<script src="js/panel.js?f=51"></script>
+<script src="js/new-screens.js?f=19"></script>
+<script src="js/v24-count.js?f=50"></script>
+</body>
+</html>
