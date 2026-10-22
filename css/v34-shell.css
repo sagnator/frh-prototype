@@ -181,6 +181,18 @@ body{
   .panel-l{order:3;height:72vh}
   .tb-chip{display:none}
 }
-/* v44: the new-screens drawer splits into Screens and Pop-ups */
-.ns-box h3.ns-sec{margin:22px 0 2px;padding-top:14px;border-top:1px solid var(--k-line);font:500 14px var(--k-font);letter-spacing:-.01em;color:var(--k-text)}
-.ns-box h3.ns-sec:first-of-type{margin-top:6px;padding-top:0;border-top:0}
+/* v44: the new-screens drawer: sticky header with tabs, then New screens, New pop-ups, Already there */
+.ns-ov .ns-box{padding-top:0}
+.ns-top{position:sticky;top:0;z-index:2;margin:0 -18px;padding:18px 18px 12px;background:var(--k-panel);border-bottom:1px solid var(--k-line)}
+.ns-top .ns-h{margin:0;padding:0;border:0}
+.ns-tabs{display:flex;gap:6px;margin-top:12px}
+.ns-tabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:34px;border-radius:99px;border:1px solid var(--k-line-2);background:transparent;color:var(--k-dim, #A1A1A1);font:500 12.5px var(--k-font);cursor:pointer;white-space:nowrap}
+.ns-tabs button b{font-weight:600;color:var(--k-text)}
+.ns-tabs button:hover{border-color:var(--k-faint)}
+.ns-tabs button.on{background:var(--k-text);border-color:var(--k-text);color:var(--k-bg, #0B0B0B)}
+.ns-tabs button.on b{color:var(--k-bg, #0B0B0B)}
+.ns-box h3.ns-sec{margin:26px 0 0;padding-top:16px;border-top:1px solid var(--k-line);font:500 15px var(--k-font);letter-spacing:-.01em;color:var(--k-text);scroll-margin-top:8px}
+.ns-box h3.ns-sec#ns-s{margin-top:14px;padding-top:0;border-top:0}
+.ns-box h3.ns-sec small{display:block;margin-top:4px;font:400 12px var(--k-font);color:var(--k-faint)}
+.ns-pops .ns-row{align-items:flex-start}
+.ns-pops .ns-row em{margin-top:1px}
