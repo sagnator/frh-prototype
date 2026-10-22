@@ -4,9 +4,11 @@
    Confirm address on the map and Add address = the old Location screen, Add patient and Payment
    successful = old pop-ups, Offline at first launch = the old "You're offline" pop-up,
    Live map = the old Track your team screen. Each row says whether the PDF asked for it.
-   v44b: new pop-ups count too (the user's call), with the same rule: Country picker, You're offline, Code
-   not delivered, Visit address, Coming soon, Edit visit details, Available coupons, Change date and time and
-   the confirm dialog (sign out) already existed, so they are not counted. */
+   v44b: new pop-ups count too (the user's call), with the same rule. Already there, so not counted: Country
+   picker, You're offline, Code not delivered, Visit address, Outside our area (= the old area-level Coming soon
+   screen), Edit visit details, Available coupons, Change date and time, Rate your visit (inline before), More
+   options (its actions were inline on the cards) and the confirm dialog (sign out). Checked by two independent
+   reviewers on 2026-10-22. */
 (function () {
   const NEW = [
     ['Sign-in and system', [['a-locperm', 'Location permission', '01'], ['a-update', 'Update required', '12.13']]],
@@ -21,10 +23,10 @@
   ];
   /* [panel id or null, label, PDF section or '', where it opens when there is no panel entry] */
   const POPS = [
-    ['Sign-in and location', [['a-locdenied', 'Location is off', '12.15'], ['a-city', 'Choose your city', '12.4'], ['a-outside', 'Outside our area', '12.5'], ['a-session', 'Signed out', '12.12']]],
+    ['Sign-in and location', [['a-locdenied', 'Location is off', '12.15'], ['a-city', 'Choose your city', '12.4'], ['a-session', 'Signed out', '12.12']]],
     ['First-time guide', [['tour-welcome', 'Welcome card'], ['tour-ask', 'Coach-mark tip']]],
-    ['Browse and book', [['v26-revs-all', 'All reviews'], [null, 'Membership plans', '', 'opens from the cart'], ['v43-addr-sheet', 'Where will they be?'], ['checkout-failed', 'Payment failed', '12.6']]],
-    ['Visits', [['appt-menu', 'More options'], ['appt-address', 'Change address', '12.3'], [null, 'Call FRH or the team', '', 'opens from a visit'], ['v30-rate-a', 'Rate your visit']]],
+    ['Browse and book', [['soon-sheet', 'Coming soon (one service)', '12.10'], ['v26-revs-all', 'All reviews'], [null, 'Membership plans', '', 'opens from the cart'], ['v43-addr-sheet', 'Where will they be?'], ['checkout-failed', 'Payment failed', '12.6']]],
+    ['Visits', [['appt-address', 'Change address', '12.3'], [null, 'Call FRH or the team', '', 'opens from a visit']]],
     ['Chat', [[null, 'Attach photo or file', '', 'opens from a chat']]],
     ['Membership and rewards', [['m-pay', 'Pay for membership'], ['m-welcome', 'Welcome to your plan', '13.4'], ['v42-redeem', 'Redeem points']]],
     ['Records', [['px-share', 'Share document']]],
@@ -38,7 +40,7 @@
   ov.className = 'ns-ov';
   ov.innerHTML = '<div class="ns-box" role="dialog" aria-label="New screens since the dev-team PDF">' +
     '<div class="ns-h"><div><b>' + (n + np) + ' new screens</b><span>' + n + ' screens and ' + np + ' pop-ups added since the dev-team PDF: ' + fromPdf + ' the PDF asked for, ' + (n + np - fromPdf) + ' our additions. ' +
-    'Anything the prototype already had before the PDF is not counted, even where it moved or changed form (Confirm location, Add patient, Payment successful, Offline, Live map, Country picker, Coming soon, Sign out).</span></div>' +
+    'Anything the prototype already had before the PDF is not counted, even where it moved or changed form (Confirm location, Add patient, Payment successful, Offline, Live map, Country picker, Outside our area, Rate your visit, More options, Sign out).</span></div>' +
     '<button type="button" class="ns-x" aria-label="Close">×</button></div>' +
     '<h3 class="ns-sec">Screens · ' + n + '</h3>' + NEW.map(g => '<h4>' + g[0] + ' · ' + g[1].length + '</h4>' + g[1].map(row).join('')).join('') +
     '<h3 class="ns-sec">Pop-ups · ' + np + '</h3>' + POPS.map(g => '<h4>' + g[0] + ' · ' + g[1].length + '</h4>' + g[1].map(row).join('')).join('') + '</div>';
