@@ -1,0 +1,40 @@
+/* Final v43: someone in a group visit at another address (cart options A, B, C) */
+
+/* A: the address row on each person */
+.s-row.v43-own{min-height:52px}
+.v43-two{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v43-two small{display:block;margin-top:2px;font-size:11.5px;font-weight:500;color:var(--muted)}
+.v43-same{color:var(--muted)}
+
+/* B: numbered stops */
+.v43-route{padding:4px 0 2px;border-bottom:1px solid #EEEEEE}
+.v43-stop{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:9px 0;border:0;background:none;text-align:left;cursor:pointer;font:500 13.5px var(--font);color:var(--ink)}
+.v43-stop:not(:last-child)::after{content:"";position:absolute;left:13px;top:calc(50% + 15px);height:calc(100% - 30px);width:2px;border-radius:2px;background:#DCDCDC}
+.v43-sn{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font:700 12px/1 var(--font)}
+.v43-stop + .v43-stop .v43-sn{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.v43-stop .mid{flex:1;min-width:0}
+.v43-stop b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.v43-stop b span{font-weight:500;color:var(--muted)}
+.v43-stop small{display:flex;align-items:center;gap:4px;margin-top:2px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v43-more{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 0;border:0;border-bottom:1px solid #EEEEEE;background:none;text-align:left;cursor:pointer;font:500 13px var(--font);color:var(--ink-2)}
+.v43-more .mid{flex:1}
+.v43-more>svg{color:#767676}
+.v43-sn.add{width:28px;height:28px;background:var(--hh-soft, #F2F2F2);color:var(--ink);box-shadow:none}
+.v43-more:hover .v43-sn.add{background:var(--hh-soft-2, #EAEAEA)}
+.v43-t{font-weight:500;color:var(--muted)}
+.v43-tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px #E2E2E2;font:600 10.5px/1 var(--font);color:var(--ink)}
+
+/* C: leave for a visit of their own */
+.v43-split{display:flex;align-items:center;gap:10px;width:100%;margin-top:2px;padding:9px 0 6px;border:0;border-top:1px solid #EEEEEE;background:none;text-align:left;cursor:pointer;font:500 13px var(--font);color:var(--ink)}
+.v43-split .mid{flex:1;min-width:0}
+.v43-split .mid b{display:block;font-weight:600}
+.v43-split .mid small{display:block;margin-top:1px;font-size:11.5px;color:var(--muted)}
+.v43-split>svg{color:#767676}
+.v43-split .s-ri{background:#fff}
+.s-item .v43-from{color:var(--ink-2)}
+
+/* the sheets */
+.v43-with{display:block;margin-top:4px;font-style:normal;font-size:11px;font-weight:600;color:var(--ink-2)}
+.v43-foot{display:flex;align-items:flex-start;gap:6px;margin:12px 2px 2px;font-size:11.5px;line-height:1.45;color:var(--muted)}
+.v43-foot svg{flex:none;margin-top:2px}
+.v43-go{margin-left:auto;color:#767676;display:grid;place-items:center}

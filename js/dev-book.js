@@ -640,15 +640,29 @@
      its own cart item underneath (price, membership, booking), but address and time belong to the
      visit, so they are copied from the first person to everyone else in the group. */
   const grpOf = i => i.grp || i.key;
+  /* Final v43: someone in the visit can be at another address. b.own marks a person with their own
+     address; everyone else follows the first person. Each extra address is a stop: the team goes on to it
+     after the one before (about 1 h later in the same city, 2 h in another emirate). completeBooking
+     already makes one booking per time + address, so each stop is booked as its own visit. */
+  const shiftWhen = (w, h) => (!w ? w : !h ? { ...w } : w.mode === 'asap' ? { mode: 'asap', off: h * 60 } : { ...w, h: Math.min(23, w.h + h) });
   function syncGroups(items) {
-    const lead = {};
+    const lead = {}, st = {};
     items.forEach(i => {
       if (!i.grp) return;
-      const L = lead[i.grp];
-      if (!L) { lead[i.grp] = i; return; }
-      const a = bkAll()[L.key], b = bkAll()[i.key];
-      if (!a || !b) return;
-      b.addr = a.addr; b.when = a.when ? { ...a.when } : a.when; b.gone = a.gone;
+      const L = lead[i.grp], b = bkAll()[i.key];
+      if (!b) return;
+      if (!L) { lead[i.grp] = i; b.own = false; b.stop = 0; st[i.grp] = { ids: [b.addr], off: [0] }; return; }
+      const a = bkAll()[L.key];
+      if (!a) return;
+      if (!b.own || b.addr === a.addr || isTele(i)) { b.own = false; b.addr = a.addr; }
+      const t = st[i.grp];
+      let n = t.ids.indexOf(b.addr);
+      if (n < 0) {
+        const prev = addrBy(t.ids[t.ids.length - 1]), here = addrBy(b.addr);
+        t.ids.push(b.addr); t.off.push(t.off[t.off.length - 1] + (prev && here && cityOf(prev) !== cityOf(here) ? 2 : 1));
+        n = t.ids.length - 1;
+      }
+      b.stop = n; b.when = shiftWhen(a.when, t.off[n]); b.gone = a.gone;
     });
   }
   function visitGroups(items) {
@@ -742,7 +756,7 @@
       const g = cart().filter(x => x.grp === i.grp);
       if (g.findIndex(x => bk(x).pat === b.pat) < g.indexOf(i)) return { row: 'pat', t: 'Choose a different person' };
     }
-    if (unav(i)) return { row: 'addr', t: 'Choose another address' };
+    if (unav(i)) return { row: i.grp && bk(i).own ? 'paddr' : 'addr', t: 'Choose another address' };
     if (b.gone) return { row: 'when', t: 'Choose a new time' };
     if (isTele(i) && !b.idDoc) return { row: 'id', t: 'Add an ID to continue' };
     if (!b.when) return { row: 'when', t: 'Choose a time' };
@@ -1102,9 +1116,13 @@
   const isOpen = (i, row) => !!S.sOpen && S.sOpen.k === i.key && S.sOpen.row === row;
   const noteOf = b => [...(b.chips || []), (b.note || '').trim()].filter(Boolean).join(', ');
 
+  const fmtMin = m => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`);
+  const first = n => String(n || '').split(' ')[0];
+  const v43m = () => S.v43addr || 'b';   /* v43 options: a per-person row · b stops · c own visit */
+  const stopTime = i => { const w = bk(i).when; return !w ? '' : w.mode === 'asap' ? `about ${fmtMin(45 + (w.off || 0))}` : `${bk(i).stop ? 'about ' : ''}${fmtH(w.h)}`; };
   function whenHtml(i, b) {
     if (!b.when) return '<span class="s-ph">Choose a date and time</span>';
-    const t = b.when.mode === 'asap' ? `As soon as possible · about ${isTele(i) ? 15 : 45} min` : `${dayShort(b.when.d)} · ${fmtH(b.when.h)}`;
+    const t = b.when.mode === 'asap' ? `As soon as possible · about ${isTele(i) ? '15 min' : fmtMin(45 + (b.when.off || 0))}` : `${dayShort(b.when.d)} · ${fmtH(b.when.h)}`;
     return b.gone ? `<s>${t}</s>` : t;
   }
   function rowsOf(i) {
@@ -1125,6 +1143,33 @@
   function panel(i, row) {
     const b = bk(i), k = i.key;
     /* every top-level child is keyed (data-r) so a pick only repaints what changed */
+    if (row === 'paddr' || row === 'stopwho') {
+      /* v43: where one person in a group visit will be (a, b), or where their own visit goes (c) */
+      const g = cart().filter(x => x.grp === i.grp), L = g[0], la = addrBy(bk(L).addr), lead = first(patBy(bk(L).pat).name);
+      if (row === 'stopwho') {
+        return `<p class="s-hint" data-r="hint">${icon('pin', 13, 2.2)} Pick who it is, then choose the address.</p>
+          ${g.slice(1).map(x => { const p = patBy(bk(x).pat), a = addrBy(bk(x).addr);
+            return `<button class="s-opt" type="button" data-r="o-${x.key}" data-act="v43-who" data-k="${x.key}"><span class="s-av">${initials(p.name)}</span>
+              <span class="mid"><b>${esc(p.name)}</b><small>${bk(x).own && a ? `At ${esc(a.label)} · stop ${bk(x).stop + 1}` : `With ${esc(lead)} at ${la ? esc(la.label) : 'the visit address'}`}</small></span><span class="v43-go">${icon('chevRight', 15, 2.4)}</span></button>`; }).join('')}
+          <p class="v43-foot" data-r="foot">Everyone moving? Change the visit address instead.</p>`;
+      }
+      const split = v43m() === 'c', all = !!(S.sOpen && S.sOpen.all);
+      const mates = id => g.filter(x => bk(x).addr === id && x.key !== i.key).map(x => esc(first(patBy(bk(x).pat).name)));
+      const stopOf = id => { const x = g.find(y => bk(y).addr === id); return x ? bk(x).stop : -1; };
+      return `${split ? `<p class="s-hint" data-r="hint">${icon('calendar', 13, 2.2)} ${esc(first(patBy(b.pat).name))} gets a separate visit with its own time. The price stays the same.</p>`
+        : `<button class="s-opt ${b.own ? '' : 'on'}" type="button" data-r="o-same" data-act="v43-paddr" data-k="${k}" data-v="" role="radio" aria-checked="${!b.own}"><span class="s-ai">${xi('users', 16, 2)}</span>
+          <span class="mid"><b>${all ? `Back to stop 1` : `Same address as ${esc(lead)}`}</b><small>${la ? `${esc(la.label)} · ${esc(shortLine(la))}` : 'The visit address'}</small></span><span class="radio"></span></button>
+        <div class="s-or" data-r="or">or somewhere else</div>`}
+        ${addrs().filter(a => !la || a.id !== la.id).map(a => {
+          const ok = covers(a), c = cityOf(a), off = ok && offIn(c).includes(i.cat), on = b.own && b.addr === a.id, st = split ? -1 : stopOf(a.id), w = mates(a.id);
+          return `<button class="s-opt ${on ? 'on' : ''} ${ok ? '' : 'dis'}" type="button" data-r="o-${esc(a.id)}" data-act="v43-paddr" data-k="${k}" data-v="${esc(a.id)}" role="radio" aria-checked="${on}"><span class="s-ai">${xi(addrIc(a), 16, 2)}</span>
+            <span class="mid"><b>${esc(a.label)}</b><small>${esc(a.line)}</small>
+            ${st > 0 && w.length ? `<em class="v43-with">Stop ${st + 1} · with ${w.join(', ')}</em>` : ''}
+            ${!ok ? `<em class="s-cov">Not covered yet · coming soon to ${CITY[c]}</em>` : off ? `<em class="s-cov">${esc(catOf(i.cat).name)} isn’t offered in ${CITY[c]} yet</em>` : ''}</span><span class="radio"></span></button>`;
+        }).join('')}
+        <button class="s-opt add" type="button" data-r="o-add" data-act="s-add-addr" data-k="${k}"><span class="s-ai add">${icon('plus', 15, 2.6)}</span>Add new address</button>
+        ${split ? '' : `<p class="v43-foot" data-r="foot">${icon('clock', 12, 2.2)} The team goes on to this address after ${la ? esc(la.label) : 'the first one'}. Each address is booked as its own visit.</p>`}`;
+    }
     if (row === 'pat') {
       const taken = i.grp ? cart().filter(x => x.grp === i.grp && x.key !== i.key).map(x => bk(x).pat) : [];
       return `${pats().map(p => `<button class="s-opt ${b.pat === p.id ? 'on' : ''} ${taken.includes(p.id) ? 'dis' : ''}" type="button" data-r="o-${esc(p.id)}" data-act="s-pat" data-k="${k}" data-v="${esc(p.id)}" role="radio" aria-checked="${b.pat === p.id}"><span class="s-av">${initials(p.name)}</span>
@@ -1169,7 +1214,8 @@
     const flash = S.sFlash === i.key;
     return `<div class="b-item s-item s-anim ${un ? 'unav' : ''} ${b.gone ? 'gone' : ''} ${flash ? 's-flash' : ''}" data-rc="it-${i.key}" data-key="${i.key}">
       <div class="s-ih" data-r="h"><span class="tile">${icon(cat.icon, 19, 2)}</span>
-        <span class="mid"><b>${esc(i.name)}</b><small>${esc(i.sub)} · ${esc(i.dur)}</small>${i.opts ? `<small class="s-opts">${esc(i.opts)}</small>` : ''}</span>
+        <span class="mid"><b>${esc(i.name)}</b><small>${esc(i.sub)} · ${esc(i.dur)}</small>${i.opts ? `<small class="s-opts">${esc(i.opts)}</small>` : ''}
+          ${i.split ? `<small class="s-ppl v43-from">${icon('pin', 11, 2.4)} Separate from ${esc(i.split.from)}’s visit</small>` : ''}</span>
         <span class="s-pr">${cov ? `${inclTag(i.id, true)}<s>${aed(i.price)}</s>` : `<b>${aed(i.price)}</b>`}${x ? `<small>+ ${aed(x)} after 10 PM</small>` : ''}</span></div>
       <div class="s-rows" data-rc="rows">${rowsOf(i).map(([row, ic, html, st]) => {
         const op = isOpen(i, row);
@@ -1197,21 +1243,47 @@
       return `<button class="s-row ${op ? 'on' : ''} ${st}" type="button" data-r="${row}" data-act="s-row" data-k="${i.key}" data-row="${row}" aria-expanded="${op}"><span class="s-ri">${xi(ic, 16, 2)}</span><span class="s-rv">${html}</span><span class="s-rc">${icon('chevDown', 15, 2.4)}</span></button>
         `;
     };
+    /* v43: where everyone is. a = an address row on each person, b = numbered stops, c = a separate visit */
+    const mode = v43m(), stops = [];
+    g.forEach(i => { const s = bk(i).stop || 0; (stops[s] = stops[s] || []).push(i); });
+    const nS = stops.filter(Boolean).length, lead = esc(first(patBy(b.pat).name));
+    const paddr = i => {
+      const pb = bk(i), a = addrBy(pb.addr);
+      return rowBtn(i, ['paddr', pb.own ? addrIc(a) : 'pin', pb.own && a ? `<span class="v43-two"><b>${esc(a.label)}</b> · ${esc(shortLine(a))}<small>Stop ${pb.stop + 1} · ${stopTime(i)}</small></span>`
+        : `<span class="v43-same">Same address as ${lead}</span>`, (pb.own ? 'v43-own ' : '') + (unav(i) ? 'warn' : '')]);
+    };
+    const route = () => `<div class="v43-route" data-rc="route">${stops.map((ps, n) => {
+        const a = addrBy(bk(ps[0]).addr), names = ps.map(x => esc(first(patBy(bk(x).pat).name))).join(', ');
+        return `<button class="v43-stop" type="button" data-r="st-${n}" ${n ? `data-act="v43-stop" data-k="${ps[0].key}"` : `data-act="s-row" data-k="${L.key}" data-row="addr"`}>
+          <span class="v43-sn">${n + 1}</span><span class="mid"><b>${a ? `${esc(a.label)} <span>· ${esc(shortLine(a))}</span>` : 'Choose an address'}</b>
+          <small>${icon('users', 11, 2.4)} ${names} · ${stopTime(ps[0])}</small></span><span class="s-rc">${icon('chevRight', 15, 2.4)}</span></button>`;
+      }).join('')}</div>`;
+    const another = () => `<button class="v43-more" type="button" data-r="more" data-act="v43-stopwho" data-k="${L.key}"><span class="v43-sn add">${icon('plus', 11, 3)}</span><span class="mid">Someone at another address?</span>${icon('chevRight', 14, 2.4)}</button>`;
+    const shared = () => {
+      const rs = rowsOf(L).filter(r => r[0] === 'addr' || r[0] === 'when');
+      if (mode !== 'b' || rs.length < 2) return rs.map(r => rowBtn(L, r)).join('');
+      if (nS < 2) return `${rowBtn(L, rs[0])}${another()}${rowBtn(L, rs[1])}`;
+      return `${route()}${another()}${rowBtn(L, [rs[1][0], rs[1][1], `${rs[1][2]}<span class="v43-t"> · first stop</span>`, rs[1][3]])}`;
+    };
     const person = (i, k) => {
       const cov = itemCov(i, m), x = cov ? 0 : extraOf(i);
+      const rows = rowsOf(i).filter(r => r[0] === 'pat' || r[0] === 'id' || r[0] === 'note').map(r => rowBtn(i, r));
+      if (mode === 'a' && k > 0 && !isTele(i)) rows.splice(1, 0, paddr(i));
       return `<div class="s-person ${S.sFlash === i.key ? 's-flash' : ''}" data-rc="pp-${i.key}" data-key="${i.key}">
-        <div class="s-pp-h" data-r="pph"><span class="s-pp-n">${icon('user', 12, 2.4)} Person ${k + 1}</span>
+        <div class="s-pp-h" data-r="pph"><span class="s-pp-n">${icon('user', 12, 2.4)} Person ${k + 1}</span>${mode === 'b' && nS > 1 ? `<span class="v43-tag">Stop ${(bk(i).stop || 0) + 1}</span>` : ''}
           <span class="s-pp-pr">${cov ? inclTag(i.id, true) : aed(i.price)}${x ? ` <small>+ ${aed(x)} after 10 PM</small>` : ''}</span>
           <button class="s-pp-x" type="button" data-act="s-rm" data-k="${i.key}" aria-label="Remove person ${k + 1} from this visit">${icon('x', 12, 2.8)}</button></div>
-        <div class="s-rows" data-rc="rows">${rowsOf(i).filter(r => r[0] === 'pat' || r[0] === 'id' || r[0] === 'note').map(r => rowBtn(i, r)).join('')}</div>
+        <div class="s-rows" data-rc="rows">${rows.join('')}</div>
+        ${mode === 'c' && k > 0 && !isTele(i) ? `<button class="v43-split" type="button" data-r="split" data-act="v43-split" data-k="${i.key}"><span class="s-ri">${xi('pin', 16, 2)}</span>
+          <span class="mid"><b>At another address?</b><small>Book ${esc(first(patBy(bk(i).pat).name))} as a separate visit</small></span>${icon('chevRight', 14, 2.4)}</button>` : ''}
       </div>`;
     };
     return `<div class="b-item s-item s-grp s-anim ${un ? 'unav' : ''} ${b.gone ? 'gone' : ''} ${flash ? 's-flash' : ''}" data-rc="gr-${L.key}" data-key="${L.key}">
       <div class="s-ih" data-r="h"><span class="tile">${icon(cat.icon, 19, 2)}</span>
         <span class="mid"><b>${esc(L.name)}</b><small>${esc(L.sub)} · ${esc(L.dur)}</small>${L.opts ? `<small class="s-opts">${esc(L.opts)}</small>` : ''}
-          <small class="s-ppl">${icon('users', 11, 2.4)} ${n} people · one visit</small></span>
+          <small class="s-ppl">${icon('users', 11, 2.4)} ${n} people · ${nS > 1 ? `${nS} addresses` : 'one visit'}</small></span>
         <span class="s-pr"><b>${aed(total)}</b><small>${n} × ${aed(L.price)}</small></span></div>
-      <div class="s-rows s-shared" data-rc="shared">${rowsOf(L).filter(r => r[0] === 'addr' || r[0] === 'when').map(r => rowBtn(L, r)).join('')}</div>
+      <div class="s-rows s-shared" data-rc="shared">${shared()}</div>
       <div class="s-people" data-rc="people">${g.map(person).join('')}</div>
       ${un ? `<div class="s-flag bad s-anim" data-r="fl-un"><span class="s-fi">${icon('pin', 17, 2.2)}</span>
           <span class="mid"><b>Not available at this address</b><small>${esc(L.name)} isn’t offered in ${un === 'none' ? 'this area' : un} yet.</small></span>
@@ -1262,10 +1334,36 @@
       S.sAddAddrFor = null;
     }
   }
-  function setAddr(it, a, isNew) {
+  function setAddr(it, a, isNew, all) {
     if (!covers(a)) { setTimeout(() => F.toast(`We don’t visit ${CITY[cityOf(a)]} yet — coming soon. Pick an address in Dubai or Sharjah.`, 'pin'), isNew ? 420 : 0); return false; }
-    bk(it).addr = a.id; S.sOpen = null;
+    S.sOpen = null;
+    if (it.grp && leadOf(it) !== it) return putPerson(it, a, all);
+    bk(it).addr = a.id;
     return true;
+  }
+  /* v43: a person (or everyone at their stop) goes to address a; in option C they leave for a visit of their own */
+  const leadOf = it => cart().find(x => x.grp && x.grp === it.grp) || it;
+  const stopMates = (it, all) => (all ? cart().filter(x => x.grp === it.grp && bk(x).own && bk(x).addr === bk(it).addr) : [it]);
+  function putPerson(it, a, all) {
+    if (v43m() === 'c') { splitOut(it, a); return true; }
+    stopMates(it, all).forEach(x => { bk(x).addr = a.id; bk(x).own = true; });
+    cart();
+    const w = stopTime(it);
+    setTimeout(() => F.toast(`${esc(first(patBy(bk(it).pat).name))} · ${esc(a.label)}${w ? `, ${w}` : ''}`, 'pin'), 260);
+    return true;
+  }
+  function splitOut(it, a, quiet) {
+    const items = cart(), g = it.grp, L = leadOf(it), b = bk(it), la = addrBy(bk(L).addr);
+    items.splice(items.indexOf(it), 1);
+    delete it.grp; it.split = { from: first(patBy(bk(L).pat).name), at: la ? la.label : '' };
+    b.own = false; b.stop = 0; b.addr = a.id; b.when = bk(L).when ? { ...bk(L).when, off: undefined } : b.when;
+    let at = -1; items.forEach((x, n) => { if (x.grp === g) at = n; });
+    items.splice(at + 1, 0, it);
+    if (quiet) return;
+    S.sFlash = it.key;
+    setTimeout(() => { if (S.screen === 'cart') scrollIntoBody(`[data-key="${it.key}"]`); }, 60);
+    setTimeout(() => F.toast(`${esc(first(patBy(b.pat).name))} now has a separate visit at ${esc(a.label)}`, 'check'), 260);
+    setTimeout(() => { if (S.sFlash === it.key) { S.sFlash = null; if (S.screen === 'cart') F.upd(); } }, 1700);
   }
 
   F.SCREENS.cart = {
@@ -1329,6 +1427,8 @@
   function groupsOf(items) {
     const gs = [];
     items.forEach(i => { const k = groupKey(bk(i).when); let g = gs.find(x => x.k === k); if (!g) gs.push(g = { k, items: [] }); g.items.push(i); });
+    const at = i => { const w = bk(i).when; return !w ? 99 : w.mode === 'asap' ? (w.off || 0) / 60 : w.h; };   /* v43: a later stop after the first */
+    gs.forEach(g => { g.items = g.items.map((i, n) => [i, n]).sort((a, b) => at(a[0]) - at(b[0]) || a[1] - b[1]).map(x => x[0]); });
     return gs.sort((a, b) => a.k - b.k);
   }
   const fmtCn = s => s.replace(/(\d{4})(?=\d)/g, '$1 ');
@@ -1447,7 +1547,7 @@
     const groups = [];
     items.forEach(i => {
       const b = bk(i), w = b.when || { mode: 'asap' };
-      const k = `${w.mode === 'asap' ? 'asap' : w.d + '|' + w.h}|${isTele(i) ? 'tele' : b.addr}`;
+      const k = `${w.mode === 'asap' ? 'asap' + (w.off || 0) : w.d + '|' + w.h}|${isTele(i) ? 'tele' : b.addr}`;
       let g = groups.find(x => x.k === k);
       if (!g) groups.push(g = { k, items: [] });
       g.items.push(i);
@@ -1464,7 +1564,7 @@
         id, status: 'confirmed', statusLabel: 'Confirmed', badge: 'NEW',
         service: f.name, sub: g.items.length > 1 ? `+ ${plural(g.items.length - 1, 'more service')}` : (f.opts || f.sub),
         date: w.mode === 'slot' ? dayShort(w.d) : 'Today',
-        time: w.mode === 'slot' ? fmtH(w.h) : `ASAP · about ${hm(asapAt)}`,
+        time: w.mode === 'slot' ? fmtH(w.h) : `ASAP · about ${hm(new Date(asapAt.getTime() + (w.off || 0) * 6e4))}`,
         patients: pl, address: isTele(f) ? 'Video call' : `${a.label} · ${a.line}`,
         team: 'Team being assigned', total: r2(g.items.reduce((s, i) => s + (itemCov(i, cm) ? 0 : i.price + extraOf(i)), 0) * ratio),
         issue: g.items.map(i => noteOf(bk(i))).filter(Boolean).join('; '), paidWith: payLabel(),
@@ -1478,11 +1578,12 @@
       g.appt.member = true; g.appt.memberTier = (tierNow() || {}).name;
     }));
     const f = groups[0].appt, fb = bk(groups[0].items[0]), fa = addrBy(fb.addr);
+    const places = [...new Set(items.filter(i => !isTele(i)).map(i => (addrBy(bk(i).addr) || {}).label).filter(Boolean))];
     S.sLast = {
       ids: groups.map(g => g.appt.id), total: r2(t.total + (joined ? planInfo(joined).price : 0)), joined, cash: t.total > 0 && S.sPay === 'cash', free: t.total <= 0, pay: payLabel(),
       when: `${f.date} · ${f.time.replace('ASAP · about ', 'about ')}`,
       pats: [...new Set(items.map(i => patBy(bk(i).pat).name))],
-      where: isTele(groups[0].items[0]) ? 'Video call' : fa ? `${fa.label} · ${shortLine(fa)}` : '—',
+      where: isTele(groups[0].items[0]) ? 'Video call' : places.length > 1 ? places.join(' and ') : fa ? `${fa.label} · ${shortLine(fa)}` : '—',
     };
     S.newBooking = f.id;
     S.cart = []; S.coupon = null; S.sBk = {}; S.sCode = ''; S.sOpen = null; S.sNew = null; S.sCardF = null;
@@ -1595,9 +1696,11 @@
     const o = S.sOpen, it = o && byKey(o.k);
     if (!it) return '<div class="sheet"></div>';
     const who = patBy(bk(it).pat), grp = it.grp && cart().filter(x => x.grp === it.grp).length > 1;
-    const sub = `${esc(it.name)}${grp && (o.row === 'pat' || o.row === 'note' || o.row === 'id') ? ` · ${esc(who.name.split(' ')[0])}` : grp ? ' · everyone in this visit' : ''}`;
-    return `<div class="sheet s-esheet" role="dialog" aria-label="${EDIT_T[o.row] || 'Edit'}"><div class="grab"></div>
-      <div class="s-es-h"><span class="mid"><h2>${EDIT_T[o.row] || 'Edit'}</h2><small>${sub}</small></span><button class="s-x" type="button" data-act="s-edit-close" aria-label="Close">${icon('x', 15, 2.6)}</button></div>
+    const sub = o.row === 'stopwho' ? esc(it.name) : o.row === 'paddr' && o.all ? `${esc(it.name)} · everyone at stop ${bk(it).stop + 1}`
+      : `${esc(it.name)}${grp && (o.row === 'pat' || o.row === 'note' || o.row === 'id' || o.row === 'paddr') ? ` · ${esc(who.name.split(' ')[0])}` : grp ? ' · everyone in this visit' : ''}`;
+    const T = o.row === 'paddr' ? (o.all ? `Where is stop ${bk(it).stop + 1}?` : `Where will ${esc(first(who.name))} be?`) : o.row === 'stopwho' ? 'Who is at another address?' : EDIT_T[o.row] || 'Edit';
+    return `<div class="sheet s-esheet" role="dialog" aria-label="${T}"><div class="grab"></div>
+      <div class="s-es-h"><span class="mid"><h2>${T}</h2><small>${sub}</small></span><button class="s-x" type="button" data-act="s-edit-close" aria-label="Close">${icon('x', 15, 2.6)}</button></div>
       <div class="s-panel s-p-${o.row} s-es-body">${panel(it, o.row)}</div></div>`;
   };
   function syncEdit() {
@@ -1773,6 +1876,28 @@
       setTimeout(() => { if (S.screen === 'cart') scrollIntoBody('.s-notebox', 40); }, 360);
     },
     's-ndone': () => closeRow(),
+    /* v43 */
+    'v43-paddr': n => {
+      const it = byKey(n.dataset.k); if (!it) return;
+      const all = !!(S.sOpen && S.sOpen.all), v = n.dataset.v;
+      if (!v) {
+        const ms = stopMates(it, all); ms.forEach(x => { bk(x).own = false; });
+        closeRow();
+        const L = leadOf(it), la = addrBy(bk(L).addr);
+        F.toast(`${ms.map(x => esc(first(patBy(bk(x).pat).name))).join(' and ')} back with ${esc(first(patBy(bk(L).pat).name))}${la ? ` at ${esc(la.label)}` : ''}`, 'users');
+        return;
+      }
+      const a = addrBy(v); if (!a) return;
+      if (setAddr(it, a, false, all)) F.upd();
+    },
+    'v43-stop': n => { const it = byKey(n.dataset.k); if (!it) return; blurMine(true); S.sOpen = { k: it.key, row: 'paddr', all: true }; F.upd(); },
+    'v43-stopwho': n => {
+      const it = byKey(n.dataset.k); if (!it) return; blurMine(true);
+      const g = cart().filter(x => x.grp === it.grp);
+      S.sOpen = g.length === 2 ? { k: g[1].key, row: 'paddr' } : { k: it.key, row: 'stopwho' }; F.upd();
+    },
+    'v43-who': n => { const it = byKey(n.dataset.k); if (!it) return; S.sOpen = { k: it.key, row: 'paddr' }; F.upd(); },
+    'v43-split': n => { const it = byKey(n.dataset.k); if (!it) return; blurMine(true); S.sOpen = { k: it.key, row: 'paddr' }; F.upd(); },
     's-edit-close': () => closeRow(),
     's-dup': n => {
       const src = byKey(n.dataset.k); if (!src) return;
@@ -1787,7 +1912,14 @@
     's-rm': n => {
       const items = cart(), idx = items.findIndex(x => x.key === n.dataset.k); if (idx < 0) return;
       const it = items[idx], who = patBy(bk(it).pat).name.split(' ')[0];
-      lastRemoved = { it, b: bkAll()[it.key], idx };
+      lastRemoved = { it, b: bkAll()[it.key], idx, prev: items.slice() };
+      if (it.grp && leadOf(it) === it) {
+        /* v43: the visit stays at its address. Someone who was there leads it now; people at other stops keep theirs */
+        const rest = items.filter(x => x !== it && x.grp === it.grp), nl = rest.find(x => !bk(x).own);
+        lastRemoved.snap = rest.map(x => [x.key, bk(x).own, bk(x).addr]);
+        rest.forEach(x => { bk(x).own = true; });
+        if (nl) { items.splice(items.indexOf(nl), 1); items.splice(items.indexOf(it) + 1, 0, nl); }
+      }
       if (S.sOpen && S.sOpen.k === it.key) { S.sOpen = null; blurMine(true); }
       S.cart = items.filter(x => x !== it); delete bkAll()[it.key];
       const inVisit = it.grp && S.cart.some(x => x.grp === it.grp);
@@ -1797,7 +1929,11 @@
     's-undo': () => {
       if (tEl()) tEl().classList.remove('show');
       const r = lastRemoved; if (!r) return; lastRemoved = null;
-      const items = cart(); items.splice(Math.min(r.idx, items.length), 0, r.it); bkAll()[r.it.key] = r.b;
+      const items = cart();
+      if (r.prev && r.prev.length === items.length + 1 && items.every(x => r.prev.includes(x))) S.cart = r.prev.slice();   /* v43: the order as it was */
+      else items.splice(Math.min(r.idx, items.length), 0, r.it);
+      bkAll()[r.it.key] = r.b;
+      (r.snap || []).forEach(([k, own, addr]) => { const b = bkAll()[k]; if (b) { b.own = own; b.addr = addr; } });
       if (S.screen === 'cart') F.upd(); else F.go('cart');
     },
     's-rm-grp': n => {
@@ -1982,7 +2118,22 @@
   P.v24IncLab = () => v24Open('tiles', 'cbc');
   P.v25IncNad = () => v24Open('tiles', 'nad');
   P.v20Tabs = () => { S.v20hero = 'bleed'; P.sGp(); setTimeout(() => { const b = F.cur() && F.cur().querySelector('.v20-tab[data-to="rev"]'); if (b && S.screen === 'service') F.ACT['v20-jump'](b); }, 500); };
-  P.sCartGroup = () => { base(mixed()); dupItem(byKey('gp')); F.go('cart', at); };
+  P.sCartGroup = () => { S.v43addr = 'b'; base(mixed()); dupItem(byKey('gp')); F.go('cart', at); };
+  /* v43: Sara and Yusuf at Home, Fatima (her mother) at Mum’s place in Sharjah, tomorrow from 10 AM */
+  function v43Cart(m, away = true) {
+    S.v43addr = m; base(['gp'], { gp: { pat: selfId(), when: { mode: 'slot', d: 1, h: 10 } } });
+    const L = byKey('gp'), f = dupItem(L).it; dupItem(L);
+    const mum = addrs().find(a => cityOf(a) === 'sharjah');
+    if (away && mum) { if (m === 'c') splitOut(f, mum, true); else { bk(f).addr = mum.id; bk(f).own = true; } }
+    return f;
+  }
+  F.v43 = {
+    cart: (m, away) => { v43Cart(m, away); F.go('cart', at); },
+    sheet: m => { const f = v43Cart(m, false); F.go('cart', at); setTimeout(() => { if (S.screen === 'cart') { S.sOpen = { k: f.key, row: 'paddr' }; F.upd(); } }, 80); },
+    who: () => { v43Cart('b', false); F.go('cart', at); setTimeout(() => { if (S.screen === 'cart') { S.sOpen = { k: 'gp', row: 'stopwho' }; F.upd(); } }, 80); },
+    pay: () => { v43Cart('b'); S.sPay = defCard(); S.sOsum = true; F.go('checkout', at); },
+    done: () => { v43Cart('b'); S.sPay = defCard(); completeBooking(); F.go('book-done', at); },
+  };
   const familyCart = () => { if (typeof F.setMember === 'function') F.setMember(null); base(mixed()); dupItem(byKey('gp')); };
   P.sCartGold = () => { familyCart(); F.go('cart', at); };
   P.sCartGoldOn = () => { familyCart(); S.sAddPlan = 'gold'; S.sPlanPick = 'gold'; F.go('cart', at); };

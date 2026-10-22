@@ -119,6 +119,13 @@
       { id: 'service-nad', n: 'Dosage & add-ons', note: 'Dosage as pills right on the page and add-ons only on IV drips; the total counts up as you choose.' },
       { id: 'cart', n: 'Cart', note: 'Every visit is already filled in (you, your visit address, the next free slot), so a simple booking needs no picks; a member sees what their plan covers.' },
       { id: 'cart-group', n: 'Cart · one visit, two people', note: 'Add another person keeps the service, address and time once, and adds a person block inside the same card, each with their own health note and price.' },
+      { id: 'v43-addr-a', n: 'Cart · A address on each person', note: 'New in v43, option A. Everyone after the first person gets an address row that reads “Same address as Sara”; tap it to pick another one. Fatima is at Mum’s place in Sharjah, so her row says stop 2, about 12:00 PM: two hours after Home because it is in another emirate. No quantity: she stays a person in the same visit card. References via Mobbin: Shop (Use a different address), Grab.' },
+      { id: 'v43-addr-b', n: 'Cart · B stops (recommended)', note: 'Option B, recommended. Under the visit address, “Someone at another address?” asks who, then where. With two addresses the card turns them into numbered stops with who is at each and when the team gets there, and every person is tagged with their stop. Tap a stop to change it or send them back to stop 1. FRH to confirm whether an extra address adds a travel charge (none for now). References via Mobbin: Uber group ride (route order), Waymo and Lyft (add stop).' },
+      { id: 'v43-addr-c', n: 'Cart · C separate visit', note: 'Option C. “At another address?” on each person asks where, then moves them out into a visit card of their own, with its own address and time, marked “Separate visit”. Simplest for FRH to run, but the family ends up across two cards. Reference via Mobbin: Alan (Why separate orders?).' },
+      { id: 'v43-addr-sheet', n: 'Where will Fatima be?', note: 'The sheet behind options A and B: same address as Sara first, then the other saved addresses, with coverage warnings. An address someone else in the visit already uses shows its stop and who is there. The last line says each address is booked as its own visit.' },
+      { id: 'v43-addr-who', n: 'Who is at another address?', note: 'With three or more people, option B asks who first; with two it goes straight to the address.' },
+      { id: 'v43-addr-pay', n: 'Pay · two addresses', note: 'The order summary lists Fatima at Mum’s place at about 12:00 PM, apart from Sara and Yusuf at Home at 10:00 AM.' },
+      { id: 'v43-addr-done', n: 'Booked · one visit per address', note: 'Paying books two visits on the same order, one for each address, with both booking numbers shown.' },
       { id: 'cart-gold', n: 'Cart · membership offer', note: 'For a non-member, the cart shows all three plans with what each would save on this exact cart, marks the best one for it, and lets the patient add it to the order with one tick.' },
       { id: 'cart-gold-on', n: 'Cart · plan added', note: 'Covered services turn to Included, the after-10 PM charge goes where the plan waives it, and the plan is one line in the summary; paying activates it.' },
       { id: 'cart-time', n: 'Cart · choose a time', note: 'Tap any row to open just that picker: ASAP, then a date strip and hourly slots with full ones greyed out.' },
@@ -243,6 +250,12 @@
     if (rc) ROUTE.cats = () => { F.v40.home(); rc(); };
     ROUTE['v40-loc-sheet'] = () => { F.v40.home(); rs(); F.v40.sheet(); };
     ROUTE['v40-loc-na'] = () => { rs(); F.v40.sharjah(); }; }
+  if (F.v43) {   /* v43: someone in a group visit at another address */
+    ['a', 'b', 'c'].forEach(k => { ROUTE['v43-addr-' + k] = () => F.v43.cart(k); });
+    ROUTE['v43-addr-sheet'] = () => F.v43.sheet('a');
+    ROUTE['v43-addr-who'] = () => F.v43.who();
+    ROUTE['v43-addr-pay'] = () => F.v43.pay();
+    ROUTE['v43-addr-done'] = () => F.v43.done(); }
   { const r0 = ROUTE.appts || (() => F.apptJump && F.apptJump('appts'));      /* v39: booking card options; the plain entry is A */
     ROUTE.appts = () => { S.v39card = 'a'; r0(); };
     ['b', 'c', 'd'].forEach(k => { ROUTE['v39-cards-' + k] = () => { S.v39card = k; r0(); }; }); }
