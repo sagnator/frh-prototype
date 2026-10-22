@@ -181,3 +181,6 @@ body{
   .panel-l{order:3;height:72vh}
   .tb-chip{display:none}
 }
+/* v44: the new-screens drawer splits into Screens and Pop-ups */
+.ns-box h3.ns-sec{margin:22px 0 2px;padding-top:14px;border-top:1px solid var(--k-line);font:500 14px var(--k-font);letter-spacing:-.01em;color:var(--k-text)}
+.ns-box h3.ns-sec:first-of-type{margin-top:6px;padding-top:0;border-top:0}
