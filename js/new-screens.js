@@ -7,12 +7,11 @@
 (function () {
   const NEW = [
     ['Sign-in and system', [['a-locperm', 'Location permission', '01'], ['a-update', 'Update required', '12.13']]],
-    ['Home', [['ask-voice', 'Ask anything (voice)', '', 'on hold']]],
     ['Browse and book', [['doctors', 'Doctors'], ['doctor', 'Doctor profile'], ['v32-all-faqs', 'All FAQs']]],
     ['Visits and records', [['lab-report', 'Lab results', '13.5'], ['e-rx', 'E-prescription', '13.6'], ['invoices', 'Invoices', '10.2'], ['px-pdf', 'Document viewer', '10.1']]],
     ['Membership', [['membership-join', 'Membership plans'], ['membership', 'My membership', '13'], ['m-plan', 'Plan detail', '13.2–13.3'],
       ['m-plans', 'Upgrade plan'], ['m-schedule', 'Book an included visit', '13.4']]],
-    ['Profile and account', [['edit-profile', 'Edit profile', '10.11'], ['coupons', 'Coupons', '10.9'], ['rewards', 'Rewards'],
+    ['Profile and account', [['coupons', 'Coupons', '10.9'], ['rewards', 'Rewards'],
       ['pay-methods', 'Payment methods', '10.13'], ['px-card', 'Add a card', '10.13'], ['notif-settings', 'Notification settings', '10.14'],
       ['account', 'Account settings', '10.15'], ['px-phone', 'Change phone number', '10.15'], ['px-delete', 'Delete account', '10.15'],
       ['px-deleted', 'Account closed', '10.15']]],
