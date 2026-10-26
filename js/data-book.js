@@ -62,6 +62,7 @@ window.FRHBOOK = {
     physio: [
       { id: 'ortho', img: 'onb-3.jpg', name: 'Orthopaedic physiotherapy', lab: 'Mark Evans + team', price: 300, dur: '45–60 min' },
       { id: 'post', img: 'onb-3.jpg', name: 'Post-surgery rehab', lab: 'Package of 6 sessions', price: 1650, dur: '6 × 60 min' },
+      { id: 'knee5', img: 'onb-3.jpg', name: 'Knee rehab package', lab: 'Bundle of 5 sessions', price: 1700, dur: '5 × 60 min' },   /* v45 */
     ],
   },
 

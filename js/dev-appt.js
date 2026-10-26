@@ -212,9 +212,10 @@
     if (!X[a.id]) {
       const pats = a.patients && a.patients.length ? a.patients : [D.user.name], net = a.total / 1.05;
       X[a.id] = {
-        blocks: pats.map(p => ({ p: clean(p), rel: relOf(p), icon: svcIcon(a.service), svc: a.service, subs: [a.sub].filter(Boolean), issue: a.issue || '' })),
+        blocks: pats.map(p => { const own = a.svcBy && a.svcBy[clean(p)];   /* v45: each person's own services when the booking says */
+          return { p: clean(p), rel: relOf(p), icon: svcIcon(a.service), svc: own ? own[0] : a.service, subs: own ? own.slice(1) : [a.sub].filter(Boolean), issue: a.issue || '' }; }),
         team: [], track: 'unassigned', km: 4.3,
-        sum: { lines: pats.map(p => [clean(p), a.service, net / pats.length]), disc: null, vat: a.total - net, total: a.total },
+        sum: { lines: pats.map(p => [clean(p), a.sumLabel || a.service, net / pats.length]), disc: null, vat: a.total - net, total: a.total },
       };
     }
     return X[a.id];
@@ -493,7 +494,7 @@
           ${g === 'completed' ? '<span class="pill green">Completed</span>' : g === 'cancelled' ? '<span class="pill ink">Cancelled</span>' : ''}
         </div>
         <div class="t-pbs">${e.blocks.map((b, i) => `<div class="t-pb">${av(b.p)}
-            <span class="t-pb-m"><b>${esc(b.p)}${b.rel ? ` <em>${esc(b.rel)}</em>` : ''}</b><small>${esc(b.svc)} · ${esc(b.subs.join(', '))}</small></span>
+            <span class="t-pb-m"><b>${esc(b.p)}${b.rel ? ` <em>${esc(b.rel)}</em>` : ''}</b><small>${esc([b.svc, b.subs.join(', ')].filter(Boolean).join(' · '))}</small></span>
             ${pStat(a, i, e.blocks.length)}</div>`).join('')}</div>
         ${cardStrip(a)}
         <div class="t-cfoot">${icon(isTele(a) ? 'video' : 'pin', 14, 2.2)}<span>${esc(a.address)}</span>${chatBtn(a)}</div>
@@ -567,7 +568,7 @@
       return `<div class="t-hero">
           <div class="t-hero-top"><span class="t-stp live"><i></i>Treatment in progress</span></div>
           <h2 class="t-hero-h">Estimated finish ${hm(L.finishAt)}<span>Started ${hm(L.startedAt)} · about <b data-left="${L.finishAt}"></b> left</span></h2>
-          <div class="t-plist">${bl.map((b, i) => `<div class="t-pl">${av(b.p)}<span class="t-pl-m"><b>${esc(b.p)}</b><small>${esc(b.subs.join(', '))}</small></span>${pStat(a, i, bl.length)}</div>`).join('')}</div>
+          <div class="t-plist">${bl.map((b, i) => `<div class="t-pl">${av(b.p)}<span class="t-pl-m"><b>${esc(b.p)}</b><small>${esc(b.subs.join(', ') || b.svc)}</small></span>${pStat(a, i, bl.length)}</div>`).join('')}</div>
         </div>`;
     }
     const t = leaveAt(a), un = st === 'unassigned', tele = isTele(a);
@@ -602,7 +603,7 @@
         <div class="info-row"><span class="tile">${icon('file', 17, 2)}</span><div class="ir-mid"><b>${a.id}</b><small>Booking ID</small></div>
           <button class="t-copy" type="button" data-act="t-copy" data-v="${a.id}" aria-label="Copy booking ID">${icon('copy', 15, 2)}</button></div>
         ${e.blocks.map(b => `<div class="info-row t-prow">${av(b.p)}<div class="ir-mid"><b>${esc(b.p)}${b.rel ? ` <span class="t-rel">${esc(b.rel)}</span>` : ''}</b>
-            <small>${esc(b.svc)} · ${esc(b.subs.join(', '))}</small>${b.issue ? `<small class="t-iss">“${esc(b.issue)}”</small>` : ''}</div></div>`).join('')}
+            <small>${esc([b.svc, b.subs.join(', ')].filter(Boolean).join(' · '))}</small>${b.issue ? `<small class="t-iss">“${esc(b.issue)}”</small>` : ''}</div></div>`).join('')}
         <div class="info-row"><span class="tile">${icon('calendar', 17, 2)}</span><div class="ir-mid"><b>${esc(a.date)}</b><small>${esc(a.time)}</small></div>
           ${ed ? '<button class="t-chg" type="button" data-act="t-edit-time">Change</button>' : ''}</div>
         <div class="info-row"><span class="tile">${icon(isTele(a) ? 'video' : 'pin', 17, 2)}</span><div class="ir-mid"><b>${esc(ad.line)}</b>
@@ -635,6 +636,47 @@
             : none ? '<span>Nothing was charged</span>' : pay.cash ? '<span>Paid on the day</span><b>At your door</b>'
               : `<span>${refunded ? 'Refunded to' : 'Paid with'}</span><b>${esc(pay.label)}</b>`}</div>
         </div></div>`;
+  }
+  /* Final v45: a session of a package shows the whole package: the appointments booked, and a Schedule button
+     on each one still to book. The record (S.v45pkgs) is written by the booking flow when the package is paid. */
+  const pkgRec = a => (a && a.pkg && S.v45pkgs && S.v45pkgs[a.pkg]) || null;
+  function pkgSec(a) {
+    const P = pkgRec(a); if (!P) return '';
+    const on = P.sessions.filter(Boolean).length, ad = addrParts({ address: P.address });
+    const row = (id, k) => {
+      const x = id && find(id);
+      if (x) {
+        const me = x.id === a.id;
+        return `<button class="t-pkr on ${me ? 'me' : ''}" type="button" ${me ? 'aria-current="true"' : `data-act="v45-pk-go" data-id="${x.id}"`}><span class="t-pkn">${k + 1}</span>
+          <span class="t-pkm"><small>Appointment ${k + 1}${grp(x) === 'completed' ? ' · done' : ''}</small><b>${esc(x.date)} · ${esc(x.time)}</b></span>${me ? '<span class="pill ink">This visit</span>' : icon('chevRight', 15, 2.2)}</button>`;
+      }
+      return `<div class="t-pkr later"><span class="t-pkn">${k + 1}</span><span class="t-pkm"><small>Appointment ${k + 1}</small><b>Not booked yet</b></span>
+        <button class="mini-btn ${k === P.sessions.indexOf(null) ? '' : 'soft'}" type="button" data-act="v45-sched" data-n="${k}">Schedule</button></div>`;
+    };
+    return `${secH('Your package', `<span class="pill ${on < P.n ? 'amber' : 'green'}">${on} of ${P.n} booked</span>`)}
+      <div class="t-pkg">
+        <div class="t-pkh"><span class="tile">${icon('physio', 19, 2)}</span><div class="t-pkt"><b>${esc(P.name)} · ${esc(P.label)}</b><small>${esc(clean(P.patient))} · ${esc(ad.label || ad.line)} · ${esc(P.each)} each</small></div></div>
+        <div class="t-pkbar" aria-hidden="true">${P.sessions.map(id => `<i class="${id ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="t-pkl">${P.sessions.map(row).join('')}</div>
+        <p class="t-pkf">${icon('card', 13, 2.2)}<span>Paid in full · ${aed(P.total)} for ${P.n} appointments. Each one is for ${esc(firstOf(P.patient))} at ${esc(ad.label || 'the same address')}.</span></p>
+      </div>`;
+  }
+  /* v45: a Visit + Packages order — each booking points to the others paid with it (a package shows once) */
+  function orderSec(a) {
+    if (!a || !a.order) return '';
+    const seen = new Set(), rows = [];
+    ALL().filter(x => x.order === a.order && x.id !== a.id && !(a.pkg && x.pkg === a.pkg)).forEach(x => {
+      if (x.pkg) {
+        const P = S.v45pkgs && S.v45pkgs[x.pkg]; if (!P || seen.has(x.pkg)) return; seen.add(x.pkg);
+        const on = pkBooked(P), to = on[0] || x;
+        rows.push(`<button class="t-ord" type="button" data-act="v45-pk-go" data-id="${to.id}"><span class="tile">${icon('physio', 17, 2)}</span>
+          <span class="t-pkm"><small>Package · ${on.length} of ${P.n} booked</small><b>${esc(P.name)} · ${esc(P.label)}</b><em>${esc(firstOf(P.patient))} · next ${esc(to.date)}, ${esc(curSlot(to))}</em></span>${icon('chevRight', 15, 2.2)}</button>`);
+        return;
+      }
+      rows.push(`<button class="t-ord" type="button" data-act="v45-pk-go" data-id="${x.id}"><span class="tile">${icon(svcIcon(x.service), 17, 2)}</span>
+        <span class="t-pkm"><small>Visit · ${esc(x.date)} · ${esc(curSlot(x) || x.time)}</small><b>${esc(x.service)}${/^\+/.test(x.sub || '') ? ` ${esc(x.sub)}` : ''}</b><em>${esc((x.patients || []).map(firstOf).join(', '))}</em></span>${icon('chevRight', 15, 2.2)}</button>`);
+    });
+    return rows.length ? `${secH('Also in this order', '<span class="pill ink">Visit + Packages</span>')}<div class="t-pkg t-order">${rows.join('')}</div>` : '';
   }
   const helpSec = () => `<button class="t-helpln" type="button" data-act="t-help">${icon('headset', 17, 2)}<span>Something not right? <b>Message FRH Support</b></span>${icon('chevRight', 15, 2.2)}</button>`;
 
@@ -765,10 +807,11 @@
       if (body._k !== key) {
         const again = body._k !== undefined;
         body._k = key;
-        body.innerHTML = LAYOUT[g].map(k => `<div data-s="${k}"></div>`).join('');
+        const lay = g !== 'upcoming' ? LAYOUT[g] : ['hero', ...(pkgRec(a) ? ['pkg'] : []), 'team', 'info', ...(orderSec(a) ? ['order'] : []), 'sum', 'help'];   /* v45 */
+        body.innerHTML = lay.map(k => `<div data-s="${k}"></div>`).join('');
         if (again) { body.classList.remove('t-in'); void body.offsetWidth; body.classList.add('t-in'); body.scrollTop = 0; }
       }
-      const map = g === 'upcoming' ? { hero: heroUp(a), team: teamSec(a), info: infoSec(a, true), sum: sumSec(a), help: helpSec(a) }
+      const map = g === 'upcoming' ? { hero: heroUp(a), pkg: pkgSec(a), order: orderSec(a), team: teamSec(a), info: infoSec(a, true), sum: sumSec(a), help: helpSec(a) }
         : g === 'completed' ? { hero: doneHero(a), svc: svcSec(a), team: teamSec(a, 'Who treated you'), docs: docsSec(a), rate: rateSec(a) }
           : { hero: cxHero(a), refund: refundSec(a), info: infoSec(a, false), sum: sumSec(a) };
       Object.keys(map).forEach(k => setHTML(body.querySelector(`[data-s="${k}"]`), map[k], ANIM.has(k)));
@@ -1037,6 +1080,42 @@
       <div class="t-free">${icon('check', 14, 2.6)}<span>Free to change until your team leaves. Your team and price stay the same.</span></div>
       <div class="t-sh-btns"><button class="btn btn-secondary" type="button" data-act="sheet-close">Cancel</button>
         <button class="btn btn-primary ${S.tEt ? '' : 'off'}" type="button" data-act="t-save-time">Confirm</button></div></div>`;
+  };
+
+  /* v45: book one of the package's appointments that was left for later (4 weeks ahead; physio until 8 PM) */
+  const DAYSN = n => [...Array(n)].map((_, k) => {
+    const d = new Date(NOW0 + k * 864e5);
+    return { k, top: k === 0 ? 'Today' : k === 1 ? 'Tom' : WD[d.getDay()], n: d.getDate(), m: MO[d.getMonth()], wd: WD[d.getDay()] };
+  });
+  const PK_SLOTS = SLOTS.slice(0, 7);
+  const pkBooked = P => P.sessions.filter(Boolean).map(find).filter(Boolean);
+  F.SHEETS['v45-sched'] = () => {
+    const a = current(), P = pkgRec(a);
+    if (!P) return '<div class="sheet"></div>';
+    const k = S.v45sn || 0, sel = S.v45sd || 0, bkd = pkBooked(P), ad = addrParts({ address: P.address });
+    const busy = (d, t) => bkd.find(x => x.date === dayLabel(d) && curSlot(x) === t);
+    return `<div class="sheet t-sheet" role="dialog" aria-label="Book appointment ${k + 1}"><div class="grab"></div>
+      <h2>Book appointment ${k + 1} of ${P.n}</h2>
+      <div class="t-cur">${icon('physio', 16, 2.2)}<span><b>${esc(P.name)} · ${esc(P.label)}</b> · ${esc(firstOf(P.patient))} at ${esc(ad.label || ad.line)}</span></div>
+      <div class="t-lbl">Date</div>
+      <div class="hrow t-days">${DAYSN(28).map(d => `<button class="date-chip ${sel === d.k ? 'on' : ''} ${bkd.some(x => x.date === dayLabel(d)) ? 'v45-has' : ''}" type="button" data-act="v45-sd" data-k="${d.k}"><small>${d.top}</small><b>${d.n}</b><span>${d.m}</span></button>`).join('')}</div>
+      <div class="t-lbl">Time</div>
+      <div class="t-slots">${PK_SLOTS.map((t, i) => {
+        const u = busy(DAYSN(28)[sel], t), off = u || slotOff(sel, i);
+        return `<button class="slot ${S.v45st === t ? 'on' : ''} ${off ? 'full' : ''}" type="button" ${off ? 'disabled aria-disabled="true"' : `data-act="v45-st" data-t="${t}"`}>${t}${u ? `<small>Appt ${u.pkgN}</small>` : ''}</button>`;
+      }).join('')}</div>
+      <div class="t-free">${icon('check', 14, 2.6)}<span>Already paid with the package. Nothing more to pay.</span></div>
+      <div class="t-sh-btns"><button class="btn btn-secondary" type="button" data-act="sheet-close">Cancel</button>
+        <button class="btn btn-primary ${S.v45st ? '' : 'off'}" type="button" data-act="v45-sched-ok">Book appointment</button></div></div>`;
+  };
+  F.v45sched = n => {
+    const a = current(), P = pkgRec(a); if (!P) return;
+    const last = pkBooked(P).map(x => DAYSN(28).findIndex(d => dayLabel(d) === x.date)).filter(i => i >= 0).sort((x, y) => y - x)[0];
+    S.v45sn = n; S.v45sd = last === undefined ? 1 : last + 7 <= 27 ? last + 7 : Math.min(27, last + 1); S.v45st = '';
+    if (S.sheet) F.closeSheet(true);
+    F.openSheet('v45-sched');
+    const row = F.el.sheet.querySelector('.hrow'), on = row && row.querySelector('.on');
+    if (on) { row.style.scrollBehavior = 'auto'; row.scrollLeft = Math.max(0, on.offsetLeft - row.offsetLeft - 60); row.style.scrollBehavior = ''; }
   };
 
   const LIVE_CITIES = ['Dubai', 'Sharjah'];
@@ -1363,6 +1442,28 @@
       const m = S.tCallMode || 'frh', a = current(), lead = a && team(a)[0];
       F.closeSheet();
       F.toast(m === '998' ? 'Calling 998…' : m === 'team' ? `Connecting you to ${lead ? firstOf(lead.name) : 'your team'}. Your number stays private.` : 'Calling FRH on 800 374…', m === '998' ? 'ambulance' : 'phone');
+    },
+    /* v45: package appointments */
+    'v45-pk-go': n => { const id = n.dataset.id; if (!find(id)) return; S.apptId = id; resetDraft(); lastOpen = id; S.tAcc = {}; F.upd(); },
+    'v45-sched': n => F.v45sched(+n.dataset.n),
+    'v45-sd': n => { S.v45sd = +n.dataset.k; S.v45st = ''; resheet('v45-sched'); },
+    'v45-st': n => { S.v45st = n.dataset.t; resheet('v45-sched'); },
+    'v45-sched-ok': () => {
+      const a = current(), P = pkgRec(a);
+      if (!P || !S.v45st) { F.shake('.t-slots'); return; }
+      const d = DAYSN(28)[S.v45sd], used = new Set(ALL().map(x => x.id));
+      let n = 24990; while (used.has('FRH-' + n)) n++;
+      const x = { id: 'FRH-' + n, status: 'confirmed', statusLabel: 'Confirmed', badge: 'NEW', service: a.service, sub: '', date: dayLabel(d), time: range(S.v45st, 60),
+        patients: (a.patients || []).slice(), address: a.address, team: 'Team being assigned', total: a.total, issue: a.issue || '', paidWith: a.paidWith,
+        pkg: a.pkg, pkgN: 0, sumLabel: a.sumLabel, v45demo: a.v45demo, order: a.order };
+      D.appointments.upcoming.push(x);
+      P.sessions[S.v45sn] = x.id;
+      /* keep the appointments in date order: appointment 1 is always the earliest */
+      const on = pkBooked(P).sort((p, q) => (startOf(p) || 0) - (startOf(q) || 0));
+      P.sessions = on.map(y => y.id).concat(Array(P.n - on.length).fill(null));
+      on.forEach((y, j) => { y.pkgN = j + 1; y.sub = `${P.name} package · session ${j + 1} of ${P.n}`; if (X[y.id]) X[y.id].blocks.forEach(b => { b.subs = [y.sub]; }); });
+      F.closeSheet(); F.upd();
+      F.toast(`Appointment ${x.pkgN} booked · ${x.date}, ${S.v45st}`, 'check');
     },
     /* date & time (T19) */
     't-edit-time': () => { const a = current(); if (!canEdit(a)) return; S.tEd = dayIdx(a); S.tEt = ''; if (S.sheet) F.closeSheet(true); F.openSheet('t-time'); },

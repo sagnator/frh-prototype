@@ -3,7 +3,7 @@
    Anything that already existed there, even as a pop-up or under another name, is not counted, but it is
    still listed at the end ("Already there before the PDF") with what it was, so nothing disappears.
    Ask anything (voice) and Edit profile are left off the list (the user's call, 2026-10-22).
-   Pop-up verdicts were checked by two independent reviewers on 2026-10-22. */
+   Pop-up verdicts were checked by two independent reviewers on 2026-10-22. v45 adds three pop-ups for packages and visits. */
 (function () {
   /* [panel id or null, label, PDF section or '', note] */
   const NEW = [
@@ -21,8 +21,8 @@
     ['Sign-in and location', [['a-locdenied', 'Location is off', '12.15'], ['a-city', 'Choose your city', '12.4'], ['a-session', 'Signed out', '12.12']]],
     ['First-time guide', [['tour-welcome', 'Welcome card'], ['tour-ask', 'Coach-mark tip']]],
     ['Browse and book', [['soon-sheet', 'Coming soon (one service)', '12.10'], ['v26-revs-all', 'All reviews'], [null, 'Membership plans', '', 'opens from the cart'],
-      ['v43-addr-sheet', 'Where will they be?'], ['checkout-failed', 'Payment failed', '12.6']]],
-    ['Visits', [['appt-address', 'Change address', '12.3'], [null, 'Call FRH or the team', '', 'opens from a visit']]],
+      ['v43-addr-sheet', 'Where will they be?'], ['v45-visit-svc', 'People in a service'], ['v45-session', 'Pick a package appointment'], ['checkout-failed', 'Payment failed', '12.6']]],
+    ['Visits', [['appt-address', 'Change address', '12.3'], ['v45-pkg-sched', 'Book the next appointment', '', 'from a package'], [null, 'Call FRH or the team', '', 'opens from a visit']]],
     ['Chat', [[null, 'Attach photo or file', '', 'opens from a chat']]],
     ['Membership and rewards', [['m-pay', 'Pay for membership'], ['m-welcome', 'Welcome to your plan', '13.4'], ['v42-redeem', 'Redeem points']]],
     ['Records', [['px-share', 'Share document']]],

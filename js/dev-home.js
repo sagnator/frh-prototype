@@ -83,6 +83,7 @@
       shift12: 'Day or night nursing cover',
       ortho: 'Assessment and a guided exercise session',
       post: '6 rehab sessions after surgery',
+      knee5: '5 knee rehab sessions, booked as you go',
       amb: 'Private transfer · call 998 in an emergency',
     },
     /* search words people actually type (symptoms, short names) */
@@ -98,7 +99,7 @@
       nad: 'nad energy', immune: 'immunity immune vitamin c zinc drip', hydra: 'hydration dehydration hangover electrolytes drip',
       basic: 'checkup blood screening', family: 'family checkup', scaling: 'teeth cleaning', dcheck: 'teeth dental',
       flu: 'flu influenza jab', travel: 'travel jab', shift4: 'nurse', shift12: 'nurse night', ortho: 'back knee joint',
-      post: 'surgery rehab', nutri: 'diet weight',
+      post: 'surgery rehab', knee5: 'knee rehab package bundle sessions', nutri: 'diet weight',
     },
     promoCat: ['checkup', 'nursing', 'lab'],
     popular: ['Doctor on Call', 'Full blood count', 'IV drip', 'PCR test', 'Flu vaccine'],

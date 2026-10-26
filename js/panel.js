@@ -118,6 +118,15 @@
       { id: 'service', n: 'Service detail', note: 'Everything a patient needs before booking, top to bottom, with one sticky bar that shows the live total and both actions.' },
       { id: 'service-nad', n: 'Dosage & add-ons', note: 'Dosage as pills right on the page and add-ons only on IV drips; the total counts up as you choose.' },
       { id: 'cart', n: 'Cart', note: 'Every visit is already filled in (you, your visit address, the next free slot), so a simple booking needs no picks; a member sees what their plan covers.' },
+      { id: 'v45-cart-both', n: 'Cart · Visit + Packages', note: 'New in v45: one cart screen for both cases. The Visit card holds everything at one address and one time: Location and Date & time once at the top, then each service with who it is for (“Sara (you) · Fatima (Mother)”) and its price; tap a service to change people, IDs or notes, and “Add a service to this visit” puts the next one in the same slot. The Package card (Knee rehab · Bundle of 5) has the patient, location and five appointments as numbered steps with a booked bar: appointment 1 is required, the others read “Schedule later” until a time is picked, now or later from Bookings. One Pay button covers both. FRH to confirm the bundle price: AED 1,700 is AED 340 a session, more than one session on its own (AED 300). References via Mobbin: Fresha (one appointment card), Urban Company (cart by time slot, packages), Equinox+ (required and optional steps), Shopify (compact timeline).' },
+      { id: 'v45-visit-time', n: 'Visit · date and time', note: 'One time for the whole visit: as soon as possible, a date strip and hourly slots. If the new time matches another visit at the same address, the two cards join into one.' },
+      { id: 'v45-visit-svc', n: 'Visit · people in a service', note: 'Everyone a service is for, each with Change person, ID (video calls only) and Health note, then Add another person and Remove.' },
+      { id: 'v45-session', n: 'Package · pick an appointment', note: 'Four weeks of dates, hourly slots until 8 PM, “Same time, a week later” as a one-tap pick, and Schedule later. A time another appointment already uses is marked, and the appointments stay in date order.' },
+      { id: 'v45-pay', n: 'Pay · Visit + Packages', note: 'The order summary lists the package under Packages: appointment 1, and how many are booked now and how many later.' },
+      { id: 'v45-done', n: 'Booked · Visit + Packages', note: 'One booking number for the visit and one for each booked appointment, with a line saying how many package appointments are still to book.' },
+      { id: 'v45-pkg-detail', n: 'Booking details · Visit + Packages', note: 'Fatima’s first knee rehab appointment, booked in the same order as the visit. “Your package” shows the booked bar, each appointment (this one marked) and Schedule on the ones not booked yet; it is paid in full, so booking the rest never asks for payment. “Also in this order” links the visit and the package both ways.' },
+      { id: 'v45-visit-detail', n: 'Booking details · the visit', note: 'The visit from the same order (GP for Sara and Fatima, Sara’s blood test). “Also in this order” shows Fatima’s package with how many appointments are booked, one tap away.' },
+      { id: 'v45-pkg-sched', n: 'Book the next appointment', note: 'Schedule opens a date and time sheet for that appointment. Booking it adds it to Bookings and updates the package. FRH to confirm the rules for cancelling one appointment of a paid package.' },
       { id: 'cart-group', n: 'Cart · one visit, two people', note: 'Add another person keeps the service, address and time once, and adds a person block inside the same card, each with their own health note and price.' },
       { id: 'v43-addr-a', n: 'Cart · A address on each person', note: 'New in v43, option A. Everyone after the first person gets an address row that reads “Same address as Sara”; tap it to pick another one. Fatima is at Mum’s place in Sharjah, so her row says stop 2, about 12:00 PM: two hours after Home because it is in another emirate. No quantity: she stays a person in the same visit card. References via Mobbin: Shop (Use a different address), Grab.' },
       { id: 'v43-addr-b', n: 'Cart · B stops (recommended)', note: 'Option B, recommended. Under the visit address, “Someone at another address?” asks who, then where. With two addresses the card turns them into numbered stops with who is at each and when the team gets there, and every person is tagged with their stop. Tap a stop to change it or send them back to stop 1. FRH to confirm whether an extra address adds a travel charge (none for now). References via Mobbin: Uber group ride (route order), Waymo and Lyft (add stop).' },
@@ -256,6 +265,16 @@
     ROUTE['v43-addr-who'] = () => F.v43.who();
     ROUTE['v43-addr-pay'] = () => F.v43.pay();
     ROUTE['v43-addr-done'] = () => F.v43.done(); }
+  if (F.v45) {   /* v45: the cart as visits and packages */
+    ROUTE['v45-cart-both'] = () => F.v45.cart('both');
+    ROUTE['v45-visit-time'] = () => F.v45.time();
+    ROUTE['v45-visit-svc'] = () => F.v45.svc();
+    ROUTE['v45-session'] = () => F.v45.sess();
+    ROUTE['v45-pay'] = () => F.v45.pay();
+    ROUTE['v45-done'] = () => F.v45.done();
+    ROUTE['v45-pkg-detail'] = () => F.v45.detail(false);
+    ROUTE['v45-visit-detail'] = () => F.v45.detail(false, 'visit');
+    ROUTE['v45-pkg-sched'] = () => F.v45.detail(true); }
   { const r0 = ROUTE.appts || (() => F.apptJump && F.apptJump('appts'));      /* v39: booking card options; the plain entry is A */
     ROUTE.appts = () => { S.v39card = 'a'; r0(); };
     ['b', 'c', 'd'].forEach(k => { ROUTE['v39-cards-' + k] = () => { S.v39card = k; r0(); }; }); }
@@ -281,7 +300,7 @@
   prep({ 'v20-bleed': 'v20Bleed', 'v20-card': 'v20Card', 'v20-tabs': 'v20Tabs', 'v20-nad': 'v20Nad' });
   prep({ service: 'sGp', 'service-nad': 'sNad', cart: 'sCart', 'cart-gold': 'sCartGold', 'cart-gold-on': 'sCartGoldOn', 'cart-group': 'sCartGroup', 'cart-time': 'sCartTime', 'cart-tele': 'sCartTele', 'cart-issues': 'sCartIssues', 'cart-coupon': 'sCartCoupon', 'cart-empty': 'sCartEmpty', checkout: 'sCheckout', 'checkout-card': 'sNewCard', 'checkout-apple': 'sApplePay', 'checkout-plan': 'sPlanCovered', 'checkout-processing': 'sPaying', 'book-done': 'sDone', 'checkout-failed': 'sPayFail' });
   /* sheets and screen states that have their own entry */
-  const SHEETVIEW = { offline: 'err-offline', failed: 'err-failed', country: 'country', 's-payfail': 'checkout-failed', 's-clear': 'cart-clear', 'hx-soon': 'soon-sheet', 'hx-addr': 'home-addr', 't-more': 'appt-menu', 't-time': 'appt-reschedule', 't-loc': 'appt-address', 'm-pay': 'm-pay', 'm-welcome': 'm-welcome', 'm-booked': 'm-booked', 'px-share': 'px-share', 'px-del-addr': 'px-del-addr', logout: 'logout' };
+  const SHEETVIEW = { offline: 'err-offline', failed: 'err-failed', country: 'country', 's-payfail': 'checkout-failed', 's-clear': 'cart-clear', 'hx-soon': 'soon-sheet', 'hx-addr': 'home-addr', 't-more': 'appt-menu', 't-time': 'appt-reschedule', 't-loc': 'appt-address', 'm-pay': 'm-pay', 'm-welcome': 'm-welcome', 'm-booked': 'm-booked', 'px-share': 'px-share', 'px-del-addr': 'px-del-addr', logout: 'logout', 'v45-sched': 'v45-pkg-sched' };
   const STAGEVIEW = { unassigned: 'appt-assigning', assigned: 'appt-assigned', onway: 'appt-onway', arrived: 'appt-arrived', treating: 'appt-treating', completed: 'appt-completed' };
 
   P.innerHTML = `
@@ -520,6 +539,7 @@
     S.guest = false; S.emailErr = '';
     if (!['err-offline'].includes(id) && !S.online) { S.online = true; F.el.sb.classList.remove('offline'); }
     if (F.authJump && F.authJump(id)) { sync(); return; }
+    S.v45cart = /^(cart|v43-addr-)/.test(id) ? 'old' : 'new';   /* v45: the older Cart entries keep the v44 cart they describe */
     if (ROUTE[id]) { ROUTE[id](); sync(); return; }
     const at = { dir: 'fade' };
     switch (id) {

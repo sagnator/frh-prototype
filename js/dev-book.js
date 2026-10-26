@@ -225,6 +225,8 @@
     hydra: { desc: 'Electrolytes and B12 to rehydrate after travel, heat or a stomach bug.', tags: ['IV therapy', 'Nurse-led'], faqs: IV_FAQS, similar: ['immune', 'nad'], addons: IV_ADDONS,
       over: 'Fluids, electrolytes and vitamin B12 to rehydrate after travel, the heat or a stomach bug. A nurse checks you first and stays for the whole drip.' },
     ortho: { desc: 'Hands-on physiotherapy for joint, back and sports injuries, at home.', tags: ['Physiotherapy', 'Home visit'] },
+    knee5: { desc: 'Five knee physiotherapy sessions at home. Book the first now and the rest when it suits you.', tags: ['Package', 'Physiotherapy'], similar: ['ortho', 'post'],
+      over: 'Five 60-minute physiotherapy sessions at home for knee pain, or after a knee injury. Choose the first appointment when you book; the other four can be booked at the same time or later from Bookings.' },
     tele: { desc: 'Talk to a doctor on video, usually within 15 minutes.', tags: ['Video call', 'New'], reviews: 0, avail: 'Doctors online now', similar: ['gp', 'peds'], faqs: GP_FAQS,
       over: 'A video call with a DHA-licensed doctor, usually within 15 minutes. Good for advice, repeat prescriptions and sick notes. If the doctor thinks you need to be seen in person, they will help you book a home visit.',
       steps: [['Book', 'Choose a time or the next free doctor.'], ['Confirm who you are', 'Emirates ID or passport, so the doctor knows who they are treating.'], ['Video call', 'The doctor calls you in the app.'], ['After the call', 'Notes and any prescription land in the app.']] },
@@ -293,6 +295,7 @@
     amb: { m: 'amb', g: [['alert', 'Emergency?', 'Call 998 instead'], ['bed', 'Stretcher', 'Or a wheelchair']], f: [['ambulance', 'Private transfer', 'Home to hospital'], ['heartPulse', 'Crew on board', 'Monitored ride'], ['phone', 'Quoted on call', 'Price agreed first'], ['note', 'Trip notes', 'Saved in the app']] },
     ortho: { m: 'home', f: [['physio', 'Assessment', 'Joints and back'], ['dumbbell', 'Guided session', 'Hands-on exercises'], ['file', 'Home plan', 'Sent to the app'], ['phone', 'Free follow-up', 'Call within 48 hours', 'call']] },
     post: { m: 'home', g: [['dumbbell', 'Exercises', 'Between sessions']], f: [['calendar', '6 sessions', 'One package'], ['physio', 'Rehab plan', 'After your surgery'], ['note', 'Progress notes', 'After each session', 'notes'], ['phone', 'Free follow-up', 'Call within 48 hours', 'call']] },
+    knee5: { m: 'home', g: [['dumbbell', 'Exercises', 'Between sessions']], f: [['calendar', '5 sessions', 'Book as you go'], ['physio', 'Knee rehab plan', 'Set at session 1'], ['note', 'Progress notes', 'After each session', 'notes'], ['phone', 'Free follow-up', 'Call within 48 hours', 'call']] },
   };
   const v24Common = id => { const x = V24F[id]; return (V24M[x.m] || []).filter(k => !(x.skip || []).includes(k))
     .map(k => { const c = V24C[k].slice(); if (k === 'kit' && x.kit) { c[2] = 'Portable unit'; c[3] = x.kit; } return [k].concat(c); }); };
@@ -611,6 +614,25 @@
     return { mode: 'asap' };
   }
   const isLate = w => !!w && (w.mode === 'asap' ? now().getHours() >= 22 : w.h >= 22);
+  /* Final v45: a package is booked as appointments. bk(i).sess holds one entry per appointment, { mode:'slot', d, h }
+     or null for "Schedule later", kept in date order with the later ones at the end; bk(i).when mirrors appointment 1.
+     Appointment 1 is required; the rest can be booked now or later from the booking. Days run 4 weeks ahead. */
+  const PKG = {
+    knee5: { n: 5, name: 'Knee rehab', label: 'Bundle of 5', each: '60 min' },
+    post: { n: 6, name: 'Post-surgery rehab', label: 'Package of 6', each: '60 min' },
+  };
+  const pkgOf = i => (i && PKG[i.id]) || null;
+  const SESS_H = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], SESS_DAYS = 28;
+  const sessFree = (d, h) => !isPast(d, h) && !isFull(d % 7, h);
+  function sessFirst() { for (let d = 1; d < SESS_DAYS; d++) for (const h of SESS_H) if (sessFree(d, h)) return { mode: 'slot', d, h }; return null; }
+  const sessAt = x => x.d * 24 + x.h;
+  function sessSort(b) {
+    const n = b.sess.length, on = b.sess.filter(Boolean).sort((x, y) => sessAt(x) - sessAt(y));
+    b.sess = on.concat(Array(n - on.length).fill(null)); b.when = b.sess[0] ? { ...b.sess[0] } : null;
+  }
+  const sessTxt = x => `${dayShort(x.d)} · ${fmtH(x.h)}`;
+  const hRange = h => { const ap = x => (x % 24 < 12 ? 'AM' : 'PM'), f = x => `${x % 12 || 12}:00`;
+    return ap(h) === ap(h + 1) ? `${f(h)} – ${f(h + 1)} ${ap(h)}` : `${f(h)} ${ap(h)} – ${f(h + 1)} ${ap(h + 1)}`; };
 
   /* =====================================================================
      Cart model
@@ -625,6 +647,8 @@
     if (b.when.mode === 'slot' && !slotFree(b.when.d, b.when.h)) b.when = nextSlot();
     b.note = ''; b.chips = []; b.gone = false;
     b.idDoc = patBy(b.pat).self ? 'eid' : (p && p.pat === b.pat && p.idDoc) || '';
+    const pk = PKG[i.id];
+    if (pk) { b.sess = Array(pk.n).fill(null); b.sess[0] = sessFirst(); b.when = b.sess[0] ? { ...b.sess[0] } : null; }   /* v45 */
     return b;
   }
   function norm(i, prev) {
@@ -680,7 +704,9 @@
   }
   function addItem(id, sel) {
     const items = cart(), it = makeItem(id, sel);
-    bkAll()[it.key] = prefill(it, items[items.length - 1]);
+    bkAll()[it.key] = prefill(it, items.filter(x => !PKG[x.id]).pop());   /* v45: copies the last visit, never a package */
+    const to = S.v45to, b = bk(it);                                          /* v45: "Add a service to this visit" */
+    if (to && !PKG[id]) { b.addr = to.addr; if (to.when && (to.when.mode === 'asap' || slotFree(to.when.d, to.when.h))) b.when = { ...to.when }; S.v45to = null; }
     items.push(it);
     return it;
   }
@@ -721,7 +747,7 @@
     const used = {}, m = {};
     if (!tierNow()) return m;
     cart().forEach(i => {
-      if (unav(i)) return;
+      if (unav(i) || PKG[i.id]) return;
       const c = covOf(i.id);
       if (!c || !personCovered(bk(i).pat)) return;
       used[c.key] = used[c.key] || 0;
@@ -752,6 +778,7 @@
   const extraOf = i => (i.night && isLate(bk(i).when) && !nightFree(i) ? i.night : 0);
   const needOf = i => {
     const b = bk(i);
+    if (PKG[i.id]) return unav(i) ? { row: 'addr', t: 'Choose another address' } : !(b.sess && b.sess[0]) ? { row: 'sess', t: 'Choose appointment 1' } : null;
     if (i.grp) {
       const g = cart().filter(x => x.grp === i.grp);
       if (g.findIndex(x => bk(x).pat === b.pat) < g.indexOf(i)) return { row: 'pat', t: 'Choose a different person' };
@@ -1369,8 +1396,8 @@
   F.SCREENS.cart = {
     status: 'dark', cls: 'cart s-cart',
     render() {
-      absorbNew();
-      const items = cart(), n = visitGroups(items).length;
+      absorbNew(); v45Mates();
+      const items = cart(), n = F.cartCount();
       const nav = `<div class="nav" data-r="nav"><button class="nav-btn" type="button" data-act="s-cart-back" aria-label="Back">${icon('arrowLeft', 20, 2)}</button>
         <span class="nav-title">${n ? `My cart <span class="s-count">(${n})</span>` : 'My cart'}</span>
         <span style="width:40px"></span></div>`;   /* v14: no Clear all; each visit has Remove + Undo */
@@ -1383,16 +1410,16 @@
       return `${nav}
         <div class="scr-body" data-rc="body">
           ${steps(1)}
-          <div class="s-items" data-rc="items">${visitGroups(items).map(g => (g.length > 1 ? groupCard(g) : itemCard(g[0]))).join('')}</div>
+          <div class="s-items" data-rc="items">${v45on() ? v45Cards(items) : visitGroups(items).map(g => (g.length > 1 ? groupCard(g) : itemCard(g[0]))).join('')}</div>
           ${goldCard()}
           ${couponBlock(t)}
           <div class="b-sum s-psum" data-r="sum">${sumLines(t)}</div>
           <p class="s-fine" data-r="fine">${icon('shieldCheck', 13, 2.2)} <span>You can reschedule or cancel from your booking · <button class="s-fine-link" type="button" data-act="px-policy" data-id="refund">Cancellation policy</button></span></p>
         </div>
         <div class="scr-foot" data-r="foot"><div class="b-foot s-cfoot"><span class="from"><small>Total · incl. VAT</small><b>${tk('cart', t.total)}</b></span>
-          <button class="btn btn-primary" type="button" data-act="s-proceed">${t.total > 0 ? 'Proceed to pay' : 'Continue'}</button></div></div>`;
+          <button class="btn btn-primary" type="button" data-act="s-proceed">${v45on() && items.some(i => pkgOf(i) && !bk(i).sess[0]) ? 'Choose appointment 1' : t.total > 0 ? 'Proceed to pay' : 'Continue'}</button></div></div>`;
     },
-    mount(n) { S.sAddPatFor = null; S.sAddAddrFor = null; ticks(n, true); scrollToKey(n); kbOutside(n); },
+    mount(n) { S.sAddPatFor = null; S.sAddAddrFor = null; S.v45to = null; ticks(n, true); scrollToKey(n); kbOutside(n); },
     update: patch,
   };
   function scrollToKey(n) {
@@ -1426,7 +1453,7 @@
   const groupKey = w => (!w ? 99 : w.mode === 'asap' ? 0 : w.d);
   function groupsOf(items) {
     const gs = [];
-    items.forEach(i => { const k = groupKey(bk(i).when); let g = gs.find(x => x.k === k); if (!g) gs.push(g = { k, items: [] }); g.items.push(i); });
+    items.forEach(i => { const k = PKG[i.id] ? 98 : groupKey(bk(i).when); let g = gs.find(x => x.k === k); if (!g) gs.push(g = { k, items: [] }); g.items.push(i); });
     const at = i => { const w = bk(i).when; return !w ? 99 : w.mode === 'asap' ? (w.off || 0) / 60 : w.h; };   /* v43: a later stop after the first */
     gs.forEach(g => { g.items = g.items.map((i, n) => [i, n]).sort((a, b) => at(a[0]) - at(b[0]) || a[1] - b[1]).map(x => x[0]); });
     return gs.sort((a, b) => a.k - b.k);
@@ -1460,10 +1487,14 @@
         ${steps(2)}
         <div class="s-osum ${open ? 'open' : ''}" data-rc="osum">
           <button class="s-osh" type="button" data-act="s-osum" aria-expanded="${open}" data-r="osh"><span class="tile">${icon('file', 18, 2)}</span>
-            <span class="mid"><b>Order summary</b><small>${plural(items.length, 'service')} · ${plural(gs.length, 'day')}</small></span>
+            <span class="mid"><b>Order summary</b><small>${plural(items.length, 'service')}${gs.some(g => g.k < 98) ? ` · ${plural(gs.filter(g => g.k < 98).length, 'day')}` : ''}${gs.some(g => g.k === 98) ? ` · ${plural(items.filter(pkgOf).length, 'package')}` : ''}</small></span>
             <span class="price">${aed(t.total)}</span>${icon('chevDown', 18, 2.2)}</button>
-          ${open ? `<div class="s-osb s-anim" data-r="osb">${gs.map(g => `<div class="s-od">${icon('calendar', 13, 2.4)} ${g.k === 99 ? 'Time not chosen' : dayLong(g.k)}</div>${g.items.map(i => {
-              const b = bk(i), p = patBy(b.pat), a = addrBy(b.addr), w = b.when;
+          ${open ? `<div class="s-osb s-anim" data-r="osb">${gs.map(g => `<div class="s-od">${icon('calendar', 13, 2.4)} ${g.k === 99 ? 'Time not chosen' : g.k === 98 ? 'Packages' : dayLong(g.k)}</div>${g.items.map(i => {
+              const b = bk(i), p = patBy(b.pat), a = addrBy(b.addr), w = b.when, pk = pkgOf(i);
+              if (pk) { const on = (b.sess || []).filter(Boolean);   /* v45 */
+                return `<div class="s-orow"><span class="s-av">${initials(p.name)}</span><span class="mid"><b>${esc(pk.name)} · ${esc(pk.label)}</b>
+                  <small>${esc(first(p.name))} · Appointment 1 ${on[0] ? sessTxt(on[0]) : '—'}</small><small>${icon('calendar', 11, 2.4)} ${on.length} of ${pk.n} booked now${on.length < pk.n ? ` · ${pk.n - on.length} later` : ''}</small></span>
+                  <span class="price">${aed(i.price)}</span></div>`; }
               const time = !w ? '—' : w.mode === 'asap' ? 'As soon as possible' : fmtH(w.h);
               return `<div class="s-orow"><span class="s-av">${initials(p.name)}</span><span class="mid"><b>${esc(i.name)}</b>
                 <small>${esc(p.name.split(' ')[0])} · ${time}</small><small>${icon(isTele(i) ? 'video' : 'pin', 11, 2.4)} ${isTele(i) ? 'Video call' : a ? esc(shortLine(a)) : '—'}</small></span>
@@ -1529,7 +1560,8 @@
           <div class="s-kvw"><small>${L.pats.length > 1 ? 'Patients' : 'Patient'}</small><b>${L.pats.map(esc).join(', ')}</b></div>
           <div class="s-kvw"><small>Where</small><b>${esc(L.where)}</b></div>
         </div>
-        ${L.ids.length > 1 ? `<p class="s-paidnote" data-r="multi">${icon('calendar', 13, 2.2)} Booked as ${L.ids.length} visits, one for each time and place: ${L.ids.join(', ')}.</p>` : ''}
+        ${L.ids.length > 1 ? `<p class="s-paidnote" data-r="multi">${icon('calendar', 13, 2.2)} ${L.pkgs && L.pkgs.length ? `Booked as ${L.ids.length} appointments, one for each visit and package session` : `Booked as ${L.ids.length} visits, one for each time and place`}: ${L.ids.join(', ')}.</p>` : ''}
+        ${(L.pkgs || []).filter(x => x.booked < x.n).map((x, k) => `<p class="s-paidnote v45-pknote" data-r="pk-${k}">${xi('calendar', 13, 2.2)} <span><b>${esc(x.name)}:</b> ${x.booked} of ${x.n} appointments booked. Book the other ${x.n - x.booked} any time from Bookings.</span></p>`).join('')}
         <p class="s-next" data-r="next">${icon('chat', 14, 2.2)} We’ve sent the details to WhatsApp. Your team is assigned soon, and you can follow them live on the day.</p>
       </div>
       <div class="scr-foot" data-r="foot"><div class="stack"><button class="btn btn-primary" type="button" data-act="s-view-booking">View booking</button>
@@ -1545,7 +1577,7 @@
     S.sAddPlan = null; S.sPlanPick = null;
     const t = totals(), items = t.items, cm = coverMap(), ratio = (t.sub + t.night) ? t.total / (t.sub + t.night) : 1;
     const groups = [];
-    items.forEach(i => {
+    items.filter(i => !PKG[i.id]).forEach(i => {
       const b = bk(i), w = b.when || { mode: 'asap' };
       const k = `${w.mode === 'asap' ? 'asap' + (w.off || 0) : w.d + '|' + w.h}|${isTele(i) ? 'tele' : b.addr}`;
       let g = groups.find(x => x.k === k);
@@ -1554,6 +1586,7 @@
     });
     const used = new Set([...D.appointments.upcoming, ...D.appointments.completed, ...D.appointments.cancelled].map(a => a.id));
     let n = 24900 + Math.floor(Math.random() * 80);
+    const order = 'ORD-' + (Date.now() % 1e6).toString(36).toUpperCase();   /* v45: bookings paid together */
     const asapAt = new Date(now().getTime() + 45 * 6e4);
     groups.forEach(g => {
       while (used.has('FRH-' + n)) n++;
@@ -1562,14 +1595,35 @@
       const pl = [...new Set(g.items.map(i => { const p = patBy(bk(i).pat); return p.self ? p.name : `${p.name} (${p.rel})`; }))];
       g.appt = {
         id, status: 'confirmed', statusLabel: 'Confirmed', badge: 'NEW',
-        service: f.name, sub: g.items.length > 1 ? `+ ${plural(g.items.length - 1, 'more service')}` : (f.opts || f.sub),
+        service: f.name, sub: new Set(g.items.map(i => i.id)).size > 1 ? `+ ${plural(new Set(g.items.map(i => i.id)).size - 1, 'more service')}` : (f.opts || f.sub),   /* v45: two people, one service */
         date: w.mode === 'slot' ? dayShort(w.d) : 'Today',
         time: w.mode === 'slot' ? fmtH(w.h) : `ASAP · about ${hm(new Date(asapAt.getTime() + (w.off || 0) * 6e4))}`,
         patients: pl, address: isTele(f) ? 'Video call' : `${a.label} · ${a.line}`,
         team: 'Team being assigned', total: r2(g.items.reduce((s, i) => s + (itemCov(i, cm) ? 0 : i.price + extraOf(i)), 0) * ratio),
-        issue: g.items.map(i => noteOf(bk(i))).filter(Boolean).join('; '), paidWith: payLabel(),
+        issue: g.items.map(i => noteOf(bk(i))).filter(Boolean).join('; '), paidWith: payLabel(), v45demo: !!S.v45demo, order,
+        svcBy: g.items.reduce((m, i) => { const nm = patBy(bk(i).pat).name; (m[nm] = m[nm] || []).push(i.name); return m; }, {}),   /* v45: each person's own services */
       };
     });
+    /* v45: a package books one appointment for each time chosen; the others wait in the package record */
+    const pkAppts = [], pks = items.filter(i => PKG[i.id]).map(i => {
+      const P = PKG[i.id], b = bk(i), a = addrBy(b.addr) || addrs()[0], p = patBy(b.pat);
+      while (used.has('FRH-' + n) || (S.v45pkgs || {})['PKG-' + n]) n++;
+      const rec = { id: 'PKG-' + n, svc: i.id, name: P.name, label: P.label, n: P.n, each: P.each, cat: catOf(i.cat).name,
+        patient: p.self ? p.name : `${p.name} (${p.rel})`, address: `${a.label} · ${a.line}`, total: r2(i.price * ratio), paidWith: payLabel(), sessions: [], demo: !!S.v45demo };
+      n++;
+      (b.sess || [b.when]).forEach((x, k) => {
+        if (!x) { rec.sessions.push(null); return; }
+        while (used.has('FRH-' + n)) n++;
+        const id = 'FRH-' + n; used.add(id); n++;
+        rec.sessions.push(id);
+        pkAppts.push({ id, status: 'confirmed', statusLabel: 'Confirmed', badge: 'NEW', service: rec.cat, sub: `${P.name} package · session ${k + 1} of ${P.n}`,
+          date: dayShort(x.d), time: hRange(x.h), patients: [rec.patient], address: rec.address, team: 'Team being assigned', total: rec.total,
+          issue: noteOf(b), paidWith: rec.paidWith, pkg: rec.id, pkgN: k + 1, sumLabel: `${P.name} · ${P.label}`, v45demo: !!S.v45demo, order });
+      });
+      (S.v45pkgs = S.v45pkgs || {})[rec.id] = rec;
+      return rec;
+    });
+    pkAppts.slice().reverse().forEach(x => D.appointments.upcoming.unshift(x));
     groups.slice().reverse().forEach(g => D.appointments.upcoming.unshift(g.appt));
     /* spend the plan allowance the same way Membership → Schedule does, so Membership shows it as booked */
     if (S.mPlan && S.mPlan.use) groups.forEach(g => g.items.forEach(i => {
@@ -1577,13 +1631,14 @@
       (S.mPlan.use[k] = S.mPlan.use[k] || []).push({ appt: g.appt.id, sub: i.name, who: patBy(bk(i).pat).name });
       g.appt.member = true; g.appt.memberTier = (tierNow() || {}).name;
     }));
-    const f = groups[0].appt, fb = bk(groups[0].items[0]), fa = addrBy(fb.addr);
+    const f = groups.length ? groups[0].appt : pkAppts[0], f0 = groups.length ? groups[0].items[0] : items.find(i => PKG[i.id]), fa = addrBy(bk(f0).addr);
     const places = [...new Set(items.filter(i => !isTele(i)).map(i => (addrBy(bk(i).addr) || {}).label).filter(Boolean))];
     S.sLast = {
-      ids: groups.map(g => g.appt.id), total: r2(t.total + (joined ? planInfo(joined).price : 0)), joined, cash: t.total > 0 && S.sPay === 'cash', free: t.total <= 0, pay: payLabel(),
+      ids: groups.map(g => g.appt.id).concat(pkAppts.map(x => x.id)), total: r2(t.total + (joined ? planInfo(joined).price : 0)), joined, cash: t.total > 0 && S.sPay === 'cash', free: t.total <= 0, pay: payLabel(),
       when: `${f.date} · ${f.time.replace('ASAP · about ', 'about ')}`,
       pats: [...new Set(items.map(i => patBy(bk(i).pat).name))],
-      where: isTele(groups[0].items[0]) ? 'Video call' : places.length > 1 ? places.join(' and ') : fa ? `${fa.label} · ${shortLine(fa)}` : '—',
+      where: isTele(f0) ? 'Video call' : places.length > 1 ? places.join(' and ') : fa ? `${fa.label} · ${shortLine(fa)}` : '—',
+      pkgs: pks.map(r => ({ name: `${r.name} · ${r.label}`, booked: r.sessions.filter(Boolean).length, n: r.n })),
     };
     S.newBooking = f.id;
     S.cart = []; S.coupon = null; S.sBk = {}; S.sCode = ''; S.sOpen = null; S.sNew = null; S.sCardF = null;
@@ -1698,7 +1753,7 @@
     const who = patBy(bk(it).pat), grp = it.grp && cart().filter(x => x.grp === it.grp).length > 1;
     const sub = o.row === 'stopwho' ? esc(it.name) : o.row === 'paddr' && o.all ? `${esc(it.name)} · everyone at stop ${bk(it).stop + 1}`
       : `${esc(it.name)}${grp && (o.row === 'pat' || o.row === 'note' || o.row === 'id' || o.row === 'paddr') ? ` · ${esc(who.name.split(' ')[0])}` : grp ? ' · everyone in this visit' : ''}`;
-    const T = o.row === 'paddr' ? (o.all ? `Where is stop ${bk(it).stop + 1}?` : `Where will ${esc(first(who.name))} be?`) : o.row === 'stopwho' ? 'Who is at another address?' : EDIT_T[o.row] || 'Edit';
+    const T = pkgOf(it) && (o.row === 'pat' || o.row === 'addr') ? (o.row === 'pat' ? 'Who is this package for?' : 'Where are the appointments?') : o.row === 'paddr' ? (o.all ? `Where is stop ${bk(it).stop + 1}?` : `Where will ${esc(first(who.name))} be?`) : o.row === 'stopwho' ? 'Who is at another address?' : EDIT_T[o.row] || 'Edit';
     return `<div class="sheet s-esheet" role="dialog" aria-label="${T}"><div class="grab"></div>
       <div class="s-es-h"><span class="mid"><h2>${T}</h2><small>${sub}</small></span><button class="s-x" type="button" data-act="s-edit-close" aria-label="Close">${icon('x', 15, 2.6)}</button></div>
       <div class="s-panel s-p-${o.row} s-es-body">${panel(it, o.row)}</div></div>`;
@@ -2055,8 +2110,289 @@
     's-done-home': () => F.go('home', { dir: 'fade' }),
   });
 
+  /* =====================================================================
+     Final v45: the cart as visits and packages.
+     Visit = everything at one address at one time: one card with Location and Date & time once, then each
+     service with who it is for. Package = its own card: patient, location and its appointments (1 required,
+     the rest now or "Schedule later"). The pickers open in one sheet, v45-edit, driven by
+     S.v45open = { kind: 'loc' | 'time' | 'svc' | 'sess', k, n, pick }. S.v45cart 'old' keeps the v44 cart.
+     ===================================================================== */
+  const v45on = () => (S.v45cart || 'new') === 'new';
+  const whoOf = p => `${first(p.name)} (${p.self ? 'you' : p.rel})`;
+  const wKey = w => (!w ? 'none' : w.mode === 'asap' ? 'asap' + (w.off || 0) : `${w.d}|${w.h}`);
+  const visitKey = i => (isTele(i) ? `tele|${grpOf(i)}|` : `${bk(i).addr}|`) + wKey(bk(i).when);
+  function v45Visits(items) {
+    const out = [], at = {};
+    items.filter(i => !PKG[i.id]).forEach(i => { const k = visitKey(i); if (at[k] === undefined) { at[k] = out.length; out.push([i]); } else out[at[k]].push(i); });
+    return out;
+  }
+  const visitOf = k => { const it = byKey(k); return it ? v45Visits(cart()).find(v => v.includes(it)) || [] : []; };
+  {
+    const count0 = F.cartCount;
+    F.cartCount = () => (v45on() ? v45Visits(cart()).length + cart().filter(pkgOf).length : count0());
+  }
+  const v45Chev = `<span class="v45-chev">${icon('chevRight', 15, 2.4)}</span>`;
+  const v45Row = (r, ic, label, val, act, st = '') => `<button class="v45-lr ${st}" type="button" data-r="${r}" ${act}><span class="v45-li">${xi(ic, 16, 2)}</span>
+    <span class="mid"><small>${label}</small><b>${val}</b></span>${v45Chev}</button>`;
+  const v45Need = need => (need ? `<span class="s-need">${icon('alert', 13, 2.4)} ${need.t}</span>` : `<span class="s-ready">${icon('check', 13, 3)} Ready to book</span>`);
+  const unFlag = (un, act) => `<div class="s-flag bad s-anim" data-r="fl-un"><span class="s-fi">${icon('pin', 17, 2.2)}</span>
+      <span class="mid"><b>Not available at this address</b><small>Not offered in ${un === 'none' ? 'this area' : un} yet.</small></span>
+      <button class="mini-btn ghost" type="button" ${act}>Change</button></div>`;
+
+  /* one service in a visit, with everyone it is for */
+  function v45Line(g, m) {
+    const L = g[0], n = g.length, cov = g.filter(i => itemCov(i, m)).length, paid = g.filter(i => !itemCov(i, m));
+    const sum = paid.reduce((t, i) => t + i.price, 0), night = paid.reduce((t, i) => t + extraOf(i), 0);
+    const who = g.map(i => `<span class="v45-nm">${esc(whoOf(patBy(bk(i).pat)))}</span>`).join(' · ');
+    const need = g.map(needOf).find(x => x && (x.row === 'pat' || x.row === 'id'));
+    const fl = S.sFlash && g.some(i => i.key === S.sFlash);
+    return `<button class="v45-line ${fl ? 'v45-flash' : ''}" type="button" data-r="ln-${grpOf(L)}" data-act="v45-open" data-kind="svc" data-k="${grpOf(L)}" aria-label="${esc(L.name)}: people and notes">
+      <img class="v45-th" src="${img(svcDetail(L.id).img)}" alt="">
+      <span class="mid"><b>${esc(L.name)}</b>${L.opts ? `<small class="s-opts">${esc(L.opts)}</small>` : ''}
+        <small class="v45-who">${icon(n > 1 ? 'users' : 'user', 12, 2.4)}<span>${who}</span></small>
+        ${need ? `<small class="v45-need">${icon('alert', 12, 2.4)} ${need.t}</small>` : ''}</span>
+      <span class="v45-pr">${cov === n ? `${inclTag(L.id, true)}<s>${aed(n * L.price)}</s>` : `<b>${aed(sum)}</b>${n > 1 ? `<small>${n} × ${aed(L.price)}${cov ? ` · ${cov} included` : ''}</small>` : ''}`}
+        ${night ? `<small class="v45-x">+ ${aed(night)} after 10 PM</small>` : ''}</span></button>`;
+  }
+  function v45Visit(v, n, N) {
+    const L = v[0], b = bk(L), a = addrBy(b.addr), m = coverMap(), tele = isTele(L);
+    const un = v.map(unav).find(Boolean), gone = v.some(i => bk(i).gone), need = v.map(needOf).find(Boolean);
+    const total = v.reduce((t, i) => t + (itemCov(i, m) ? 0 : i.price + extraOf(i)), 0);
+    const at = `data-act="v45-open" data-k="${L.key}"`;
+    return `<div class="b-item s-item v45-card s-anim ${un ? 'unav' : ''} ${gone ? 'gone' : ''}" data-rc="vs-${L.key}" data-key="${L.key}">
+      <div class="v45-h" data-r="h"><span class="v45-eb">${xi(tele ? 'video' : 'home', 13, 2.2)}${tele ? 'Video consultation' : 'Visit'}${N > 1 ? `<i>${n} of ${N}</i>` : ''}</span>
+        <b class="v45-tot">${aed(total)}</b></div>
+      <div class="v45-logi" data-rc="logi">
+        ${tele ? '' : v45Row('loc', addrIc(a), 'Location', a ? `${esc(a.label)} · ${esc(shortLine(a))}` : '<span class="s-ph">Choose an address</span>', `${at} data-kind="loc"`, un ? 'warn' : '')}
+        ${v45Row('time', 'clock', 'Date &amp; time', whenHtml(L, b), `${at} data-kind="time"`, gone ? 'warn' : '')}
+      </div>
+      <div class="v45-lines" data-rc="lines">${visitGroups(v).map(g => v45Line(g, m)).join('')}</div>
+      ${un ? unFlag(un, `${at} data-kind="loc"`) : ''}
+      ${gone ? `<div class="s-flag warn s-anim" data-r="fl-gone"><span class="s-fi">${icon('clock', 17, 2.2)}</span>
+          <span class="mid"><b>${b.when && b.when.mode === 'slot' ? fmtH(b.when.h) : 'That time'} was just taken</b><small>Someone booked it while this was in your cart.</small></span>
+          <button class="mini-btn" type="button" ${at} data-kind="time">Change time</button></div>` : ''}
+      ${tele ? '' : `<button class="v45-add" type="button" data-r="add" data-act="v45-add" data-k="${L.key}"><span class="v45-addi">${icon('plus', 12, 3)}</span>Add a service to this visit</button>`}
+      <div class="foot s-ifoot" data-r="f">${v45Need(need)}
+        <button class="s-rmv" type="button" data-act="v45-rm" data-k="${L.key}" aria-label="Remove this visit">${xi('trash', 14, 2)} Remove</button></div>
+    </div>`;
+  }
+  function v45Pkg(i) {
+    const P = pkgOf(i), b = bk(i), p = patBy(b.pat), a = addrBy(b.addr), un = unav(i), ss = b.sess || [], on = ss.filter(Boolean).length;
+    const at = `data-act="v45-open" data-kind="sess" data-k="${i.key}"`;
+    return `<div class="b-item s-item v45-card v45-pkg s-anim ${un ? 'unav' : ''} ${S.sFlash === i.key ? 's-flash' : ''}" data-rc="pk-${i.key}" data-key="${i.key}">
+      <div class="v45-h" data-r="h"><span class="v45-eb pk">${xi('calendar', 13, 2.2)}Package<i>${P.n} appointments</i></span><b class="v45-tot">${aed(i.price)}</b></div>
+      <div class="v45-pt" data-r="pt"><img class="v45-th" src="${img(svcDetail(i.id).img)}" alt=""><span class="mid"><b>${esc(P.name)} · ${esc(P.label)}</b><small>${esc(catOf(i.cat).name)} · ${P.each} each, at home</small></span></div>
+      <div class="v45-logi" data-rc="logi">
+        ${v45Row('pat', 'users', 'Patient', esc(whoOf(p)), `data-act="s-row" data-k="${i.key}" data-row="pat"`)}
+        ${v45Row('loc', addrIc(a), 'Location', a ? `${esc(a.label)} · ${esc(shortLine(a))}` : '<span class="s-ph">Choose an address</span>', `data-act="s-row" data-k="${i.key}" data-row="addr"`, un ? 'warn' : '')}
+      </div>
+      <div class="v45-sess" data-rc="sess">
+        <div class="v45-sh" data-r="sh"><b>Appointments</b><span class="v45-bar" aria-hidden="true">${ss.map(x => `<i class="${x ? 'on' : ''}"></i>`).join('')}</span><small>${on} of ${P.n} booked</small></div>
+        ${ss.map((x, k) => `<button class="v45-sr ${x ? 'on' : 'later'} ${!k && !x ? 'warn' : ''}" type="button" data-r="s${k}" ${at} data-n="${k}">
+          <span class="v45-sn">${k + 1}</span>
+          <span class="mid"><small>Appointment ${k + 1}${k ? '' : '<em>Required</em>'}</small><b>${x ? sessTxt(x) : k ? 'Schedule later' : 'Choose a date and time'}</b></span>
+          ${x ? v45Chev : `<span class="v45-pick">${k ? 'Pick' : 'Choose'}</span>`}</button>`).join('')}
+      </div>
+      ${un ? unFlag(un, `data-act="s-row" data-k="${i.key}" data-row="addr" data-force="1"`) : ''}
+      <p class="v45-hint" data-r="hint">${xi('calendar', 13, 2.2)}<span>${on < P.n ? `Book the other ${P.n - on} now, or any time later from Bookings.` : 'All appointments booked. You can still move them from Bookings.'}</span></p>
+      <div class="foot s-ifoot" data-r="f">${v45Need(needOf(i))}
+        <button class="s-rmv" type="button" data-act="s-rm" data-k="${i.key}" aria-label="Remove ${esc(P.name)} package">${xi('trash', 14, 2)} Remove</button></div>
+    </div>`;
+  }
+  const v45Cards = items => { const vs = v45Visits(items); return vs.map((v, n) => v45Visit(v, n + 1, vs.length)).join('') + items.filter(pkgOf).map(v45Pkg).join(''); };
+
+  /* a new address saved from the visit sheet goes to everyone in that visit */
+  function v45Mates() {
+    const M = S.v45mates; if (!M) return;
+    const L = byKey(M.lead); if (!L) { S.v45mates = null; return; }
+    if (bk(L).addr === M.addr0) return;
+    M.keys.forEach(k => { const x = byKey(k); if (x && x !== L) { bk(x).addr = bk(L).addr; bk(x).own = false; } });
+    S.v45mates = null;
+  }
+
+  /* ---------- the v45-edit sheet ---------- */
+  const v45Head = (T, sub) => `<div class="s-es-h"><span class="mid"><h2>${T}</h2><small>${sub}</small></span><button class="s-x" type="button" data-act="v45-close" aria-label="Close">${icon('x', 15, 2.6)}</button></div>`;
+  const v45Items = o => (o.kind === 'svc' ? cart().filter(x => grpOf(x) === o.k) : o.kind === 'sess' ? [byKey(o.k)].filter(Boolean) : visitOf(o.k));
+  const svcNames = v => [...new Set(v.map(i => i.name))].join(', ');
+  function v45SheetHtml() {
+    const o = S.v45open, v = o ? v45Items(o) : [];
+    if (!v.length) return '<div class="sheet"></div>';
+    const L = v[0], b = bk(L);
+    if (o.kind === 'loc') {
+      return `<div class="sheet s-esheet v45-sheet" role="dialog" aria-label="Visit address"><div class="grab"></div>${v45Head('Visit address', `${esc(svcNames(v))} · for everyone in this visit`)}
+        <div class="s-panel s-p-addr s-es-body">${addrs().map(a => {
+          const ok = covers(a), c = cityOf(a), off = ok && v.some(i => offIn(c).includes(i.cat));
+          return `<button class="s-opt ${b.addr === a.id ? 'on' : ''} ${ok ? '' : 'dis'}" type="button" data-act="v45-addr" data-v="${esc(a.id)}" role="radio" aria-checked="${b.addr === a.id}"><span class="s-ai">${xi(addrIc(a), 16, 2)}</span>
+            <span class="mid"><b>${esc(a.label)}${a.dflt ? ' <span class="pill ink">Default</span>' : ''}</b><small>${esc(a.line)}</small>
+            ${!ok ? `<em class="s-cov">Not covered yet · coming soon to ${CITY[c]}</em>` : off ? `<em class="s-cov">Not every service here is offered in ${CITY[c]} yet</em>` : ''}</span><span class="radio"></span></button>`; }).join('')}
+          <button class="s-opt add" type="button" data-act="v45-add-addr"><span class="s-ai add">${icon('plus', 15, 2.6)}</span>Add new address</button></div></div>`;
+    }
+    if (o.kind === 'time') {
+      const w = b.when, asap = w && w.mode === 'asap', pd = o.pick, hs = HOURS.filter(h => !isPast(pd, h)), night = v.find(i => i.night);
+      return `<div class="sheet s-esheet v45-sheet" role="dialog" aria-label="Date and time"><div class="grab"></div>${v45Head('Date &amp; time', `${esc(svcNames(v))} · one time for the whole visit`)}
+        <div class="s-panel s-p-when s-es-body">
+        <button class="s-asap ${asap ? 'on' : ''}" type="button" data-act="v45-asap"><span class="tile green">${xi('clock', 17, 2.2)}</span>
+          <span class="mid"><b>As soon as possible</b><small>Next free team · about 45 min</small></span><span class="pill green live"><i></i>Now</span></button>
+        <div class="s-or">or pick a time</div>
+        <div class="s-dates">${[0, 1, 2, 3, 4, 5, 6].map(d => { const x = dayOf(d); return `<button class="date-chip ${pd === d ? 'on' : ''}" type="button" data-act="v45-date" data-d="${d}" aria-pressed="${pd === d}"><small>${d === 0 ? 'Today' : d === 1 ? 'Tom' : WD[x.getDay()]}</small><b>${x.getDate()}</b><span>${MO[x.getMonth()]}</span></button>`; }).join('')}</div>
+        <div class="s-slots">${hs.length ? hs.map(h => { const full = isFull(pd, h), sel = !asap && w && w.d === pd && w.h === h && !b.gone;
+          return `<button class="slot ${sel ? 'on' : ''} ${full ? 'full' : ''}" type="button" ${full ? 'disabled aria-disabled="true"' : `data-act="v45-slot" data-h="${h}"`}>${fmtH(h).replace(':00', '')}${full ? '<small>Full</small>' : ''}</button>`; }).join('') : '<p class="s-none">No times left today. Pick another day.</p>'}</div>
+        ${night ? `<p class="s-hint">${icon('clock', 13, 2.2)} ${nightFree(night) ? `No after-10 PM charge on your ${esc(tierNow().name)} plan.` : `Doctor visits from 10 PM add ${aed(night.night)} a person.`}</p>` : ''}</div></div>`;
+    }
+    if (o.kind === 'svc') {
+      const m = coverMap(), tele = isTele(L), w = bk(L).when;
+      const person = i => { const ib = bk(i), p = patBy(ib.pat), nt = noteOf(ib), idOk = ID_OPTS.find(x => x.k === ib.idDoc);
+        return `<div class="v45-pp" data-r="p-${i.key}">
+          <div class="v45-pph"><span class="s-av">${initials(p.name)}</span><span class="mid"><b>${esc(p.name)}</b><small>${p.self ? 'You' : esc(p.rel)}${p.age ? ` · ${p.age} yrs` : ''}</small></span>
+            <span class="v45-ppr">${itemCov(i, m) ? inclTag(i.id, true) : aed(i.price)}</span>
+            <button class="s-x" type="button" data-act="v45-keep" data-a="s-rm" data-k="${i.key}" aria-label="Remove ${esc(first(p.name))}">${icon('x', 13, 2.8)}</button></div>
+          <div class="v45-ppa">
+            <button type="button" data-act="v45-via" data-a="s-row" data-k="${i.key}" data-row="pat">${xi('users', 14, 2)} Change person</button>
+            ${tele ? `<button type="button" class="${idOk ? '' : 'warn'}" data-act="v45-via" data-a="s-row" data-k="${i.key}" data-row="id">${xi('idcard', 14, 2)} ${idOk ? esc(idOk.v) : 'Add ID'}</button>` : ''}
+            <button type="button" data-act="v45-via" data-a="s-row" data-k="${i.key}" data-row="note">${xi('note', 14, 2)} ${nt ? esc(nt) : 'Health note'}</button></div></div>`; };
+      return `<div class="sheet s-esheet v45-sheet" role="dialog" aria-label="${esc(L.name)}"><div class="grab"></div>
+        ${v45Head(esc(L.name), `${esc(L.sub)} · ${esc(L.dur)}${w ? ` · ${w.mode === 'asap' ? 'as soon as possible' : `${dayShort(w.d)}, ${fmtH(w.h)}`}` : ''}`)}
+        <div class="s-es-body">${v.map(person).join('')}
+          <button class="s-dup v45-dup" type="button" data-act="v45-keep" data-a="s-dup" data-k="${L.key}"><span class="s-dupi">${icon('plus', 13, 2.8)}</span><span class="mid">Add another person</span><b>+ ${aed(L.price)}</b></button>
+          <button class="v45-rmall" type="button" data-act="v45-via" data-a="s-rm-grp" data-k="${L.key}">${xi('trash', 14, 2)} Remove ${esc(L.name)}${v.length > 1 ? ' for everyone' : ''}</button></div></div>`;
+    }
+    /* sess: one appointment of a package */
+    const P = pkgOf(L), ss = b.sess, k = o.n, cur = ss[k], pd = o.pick, p = patBy(b.pat), a = addrBy(b.addr);
+    const usedBy = (d, h) => ss.findIndex((x, j) => j !== k && x && x.d === d && x.h === h);
+    const prev = ss.filter((x, j) => x && j !== k).sort((x, y) => sessAt(y) - sessAt(x))[0];
+    const sug = k && !cur && prev && prev.d + 7 < SESS_DAYS && sessFree(prev.d + 7, prev.h) && usedBy(prev.d + 7, prev.h) < 0 ? { d: prev.d + 7, h: prev.h } : null;
+    const hs = SESS_H.filter(h => !isPast(pd, h));
+    return `<div class="sheet s-esheet v45-sheet" role="dialog" aria-label="Appointment ${k + 1}"><div class="grab"></div>
+      ${v45Head(`Appointment ${k + 1}${k ? '' : ' · required'}`, `${esc(P.name)} · ${esc(P.label)} · ${esc(first(p.name))}${a ? ` at ${esc(a.label)}` : ''}`)}
+      <div class="s-panel s-p-when s-es-body">
+        ${sug ? `<button class="v45-sug" type="button" data-act="v45-sslot" data-d="${sug.d}" data-h="${sug.h}"><span class="tile">${xi('calendar', 17, 2.2)}</span>
+          <span class="mid"><small>Same time, a week later</small><b>${sessTxt(sug)}</b></span><span class="pill ink">Pick</span></button><div class="s-or">or another time</div>` : ''}
+        <div class="s-dates v45-days">${[...Array(SESS_DAYS).keys()].map(d => { const x = dayOf(d), bk2 = ss.some((y, j) => j !== k && y && y.d === d);
+          return `<button class="date-chip ${pd === d ? 'on' : ''} ${bk2 ? 'v45-has' : ''}" type="button" data-act="v45-sdate" data-d="${d}" aria-pressed="${pd === d}"><small>${d === 0 ? 'Today' : d === 1 ? 'Tom' : WD[x.getDay()]}</small><b>${x.getDate()}</b><span>${MO[x.getMonth()]}</span></button>`; }).join('')}</div>
+        <div class="s-slots">${hs.length ? hs.map(h => { const full = !sessFree(pd, h), u = usedBy(pd, h), sel = cur && cur.d === pd && cur.h === h;
+          return `<button class="slot ${sel ? 'on' : ''} ${full || u >= 0 ? 'full' : ''}" type="button" ${full || u >= 0 ? 'disabled aria-disabled="true"' : `data-act="v45-sslot" data-h="${h}"`}>${fmtH(h).replace(':00', '')}${u >= 0 ? `<small>Appt ${u + 1}</small>` : full ? '<small>Full</small>' : ''}</button>`; }).join('') : '<p class="s-none">No times left today. Pick another day.</p>'}</div>
+        ${k ? `<button class="btn btn-secondary v45-later" type="button" data-act="v45-slater">${cur ? 'Remove this time · schedule later' : 'Schedule later'}</button>
+          <p class="s-hint">${icon('calendar', 13, 2.2)} You can book it any time from Bookings. The package price stays the same.</p>`
+        : `<p class="s-hint">${icon('alert', 13, 2.2)} The first appointment is booked with the package. The rest can wait.</p>`}
+      </div></div>`;
+  }
+  F.SHEETS['v45-edit'] = () => withGold(v45SheetHtml);
+  /* the sheet follows S.v45open; s-edit (S.sOpen) wins when both are asked for */
+  function v45Draw() {
+    const Lr = F.el.sheet, old = S.sheet === 'v45-edit' && Lr.querySelector('.sheet');
+    const sc = old ? (old.querySelector('.s-es-body') || {}).scrollTop || 0 : 0, dl = old && old.querySelector('.v45-days') ? old.querySelector('.v45-days').scrollLeft : null;
+    F.openSheet('v45-edit');
+    const nw = Lr.querySelector('.sheet'); if (!nw) return;
+    const body = nw.querySelector('.s-es-body'), days = nw.querySelector('.v45-days');
+    if (body) body.scrollTop = sc;
+    if (days) {                                     /* no smooth scroll here, or the next redraw reads a half-way value */
+      days.style.scrollBehavior = 'auto';
+      if (dl !== null) days.scrollLeft = dl; else { const on = days.querySelector('.on'); if (on) days.scrollLeft = Math.max(0, on.offsetLeft - days.offsetLeft - 60); }
+      days.style.scrollBehavior = '';
+    }
+  }
+  function syncV45() {
+    if (S.sOpen) { S.v45open = null; return; }
+    const up = S.sheet === 'v45-edit';
+    if (S.v45open && S.screen === 'cart') { if (v45Items(S.v45open).length) v45Draw(); else { S.v45open = null; if (up) F.closeSheet(); } }
+    else if (!S.v45open && up) F.closeSheet();
+  }
+  {
+    const c = F.SCREENS.cart, u0 = c.update;
+    c.update = function (n) { const r = u0.apply(this, arguments); syncV45(); return r; };
+    const close0 = F.ACT['sheet-close'];
+    F.ACT['sheet-close'] = (n, e) => { if (S.sheet === 'v45-edit') { S.v45open = null; F.closeSheet(); return; } return close0(n, e); };
+    /* Pay with something missing: open the visit or appointment that needs it */
+    const proceed0 = F.ACT['s-proceed'];
+    F.ACT['s-proceed'] = n => {
+      if (!v45on() || S.guest) return proceed0(n);
+      const bad = cart().find(i => needOf(i)), nd = bad && needOf(bad);
+      if (!bad || !(nd.row === 'sess' || (!pkgOf(bad) && (nd.row === 'when' || (nd.row === 'addr' && !(bad.grp && bk(bad).own)))))) return proceed0(n);
+      blurMine(true);
+      const L = pkgOf(bad) ? bad : visitOf(bad.key)[0] || bad;
+      S.sFocus = L.key; F.upd(); scrollToKey(F.cur()); F.shake(`[data-key="${L.key}"]`);
+      v45Open(pkgOf(bad) ? { kind: 'sess', k: bad.key, n: 0 } : { kind: nd.row === 'when' ? 'time' : 'loc', k: L.key });
+      F.toast(`${nd.t} for ${esc(pkgOf(bad) ? pkgOf(bad).name : bad.name)}`, 'alert');
+    };
+  }
+  function v45Open(o) {
+    const v = v45Items(o); if (!v.length) return;
+    const b = bk(v[0]);
+    if (o.kind === 'time') o.pick = b.when && b.when.mode === 'slot' ? b.when.d : 0;
+    if (o.kind === 'sess') { const x = b.sess[o.n] || b.sess.filter(Boolean).pop(); o.pick = x ? x.d : (sessFirst() || { d: 1 }).d; }
+    S.sOpen = null; S.v45mates = null; S.v45open = o; F.upd();
+  }
+  const v45Close = () => { S.v45open = null; F.upd(); };
+  const v45Each = fn => { const o = S.v45open, v = o ? v45Items(o) : []; v.forEach(i => fn(bk(i), i)); return v; };
+  /* after a time change: did this visit join another one at the same address and time? */
+  const joinedMsg = (lead, n0) => { const v = visitOf(lead.key); return v.length > n0 ? ' · joined your other visit then' : ''; };
+  Object.assign(F.ACT, {
+    'v45-open': n => { blurMine(true); v45Open({ kind: n.dataset.kind, k: n.dataset.k, n: n.dataset.n === undefined ? 0 : +n.dataset.n }); },
+    'v45-close': () => v45Close(),
+    'v45-via': n => { const a = n.dataset.a; S.v45open = null; F.closeSheet(true); if (F.ACT[a]) F.ACT[a](n); },
+    'v45-keep': n => { const a = n.dataset.a; if (F.ACT[a]) F.ACT[a](n); },
+    'v45-addr': n => {
+      const a = addrBy(n.dataset.v), v = v45Items(S.v45open || {}); if (!a || !v.length) return;
+      if (!covers(a)) { F.toast(`We don’t visit ${CITY[cityOf(a)]} yet — coming soon. Pick an address in Dubai or Sharjah.`, 'pin'); F.shake('.v45-sheet .s-opt.dis'); return; }
+      const n0 = v.length;
+      v.forEach(i => { bk(i).addr = a.id; bk(i).own = false; });
+      v45Close();
+      const L = v[0];
+      F.toast(`Visit moved to ${esc(a.label)}${joinedMsg(L, n0)}`, 'pin');
+      if (v.some(unav)) setTimeout(() => F.shake(`[data-key="${visitOf(L.key)[0].key}"] .s-flag`), 300);
+    },
+    'v45-add-addr': () => {
+      const v = v45Items(S.v45open || {}); if (!v.length) return;
+      const L = v[0];
+      S.v45open = null; F.closeSheet(true);
+      S.v45mates = { lead: L.key, keys: v.map(i => i.key), addr0: bk(L).addr };
+      F.ACT['s-add-addr']({ dataset: { k: L.key } });
+    },
+    'v45-asap': () => { const v = v45Each(b => { b.when = { mode: 'asap' }; b.gone = false; }); const n0 = v.length; v45Close(); if (v[0]) F.toast(`As soon as possible · about 45 min${joinedMsg(v[0], n0)}`, 'clock'); },
+    'v45-date': n => { if (S.v45open) { S.v45open.pick = +n.dataset.d; F.upd(); } },
+    'v45-slot': n => {
+      const o = S.v45open; if (!o) return;
+      const h = +n.dataset.h, w = { mode: 'slot', d: o.pick, h };
+      const v = v45Each(b => { b.when = { ...w }; b.gone = false; }), n0 = v.length;
+      v45Close();
+      if (!v[0]) return;
+      const fee = h >= 22 && v.some(i => i.night && !nightFree(i));
+      F.toast(`${dayShort(w.d)} · ${fmtH(h)}${fee ? ` · after-10 PM charge added` : ''}${joinedMsg(v[0], n0)}`, 'clock');
+    },
+    'v45-sdate': n => { if (S.v45open) { S.v45open.pick = +n.dataset.d; F.upd(); } },
+    'v45-sslot': n => {
+      const o = S.v45open, it = o && byKey(o.k); if (!it) return;
+      const b = bk(it), x = { mode: 'slot', d: n.dataset.d !== undefined ? +n.dataset.d : o.pick, h: +n.dataset.h };
+      b.sess[o.n] = x; sessSort(b);
+      const at = b.sess.findIndex(y => y && y.d === x.d && y.h === x.h);
+      v45Close();
+      F.toast(`Appointment ${at + 1} · ${sessTxt(x)}${at !== o.n ? ' · sorted by date' : ''}`, 'check');
+    },
+    'v45-slater': () => {
+      const o = S.v45open, it = o && byKey(o.k); if (!it || !o.n) return;
+      const b = bk(it), had = !!b.sess[o.n];
+      b.sess[o.n] = null; sessSort(b);
+      v45Close();
+      F.toast(had ? `Time removed · book it later from Bookings` : `Appointment ${o.n + 1} · schedule later`, 'calendar');
+    },
+    'v45-add': n => {
+      const v = visitOf(n.dataset.k); if (!v.length) return;
+      const b = bk(v[0]);
+      S.v45to = { addr: b.addr, when: b.when ? { ...b.when } : null };
+      F.ACT['s-browse']();
+      F.toast('Pick a service · it joins this visit', 'plus');
+    },
+    'v45-rm': n => {
+      const items = cart(), v = visitOf(n.dataset.k); if (!v.length) return;
+      lastGroup = items.map((x, idx) => ({ it: x, b: bkAll()[x.key], idx })).filter(o => v.includes(o.it));
+      S.cart = items.filter(x => !v.includes(x)); lastGroup.forEach(o => { delete bkAll()[o.it.key]; });
+      S.v45open = null; F.upd();
+      F.toast(`Visit removed · ${plural(v.length, 'service')} ${tAct('Undo', 's-undo-grp')}`, 'check');
+    },
+  });
+
   /* presenter helpers */
-  F.sSlotTaken = () => { const it = cart().find(i => bk(i).when && bk(i).when.mode === 'slot'); if (!it) return false; bk(it).gone = true; S.sOpen = null; if (S.screen === 'cart') F.upd(); return true; };
+  F.sSlotTaken = () => { const it = cart().find(i => !PKG[i.id] && bk(i).when && bk(i).when.mode === 'slot'); if (!it) return false; bk(it).gone = true; S.sOpen = null; if (S.screen === 'cart') F.upd(); return true; };
   F.sFailNext = () => { S.sFailNext = true; };
 
   /* =====================================================================
@@ -2160,4 +2496,31 @@
   P.sPaying = () => { payCart(); S.sPay = defCard(); S.sOsum = false; F.go('checkout', at); F.ACT['s-pay'](); };
   P.sDone = () => { payCart(); S.sPay = defCard(); completeBooking(); F.go('book-done', at); };
   P.sPayFail = () => { payCart(); S.sPay = (cards().find(c => c.brand === 'mc') || cards()[0] || {}).id; S.sOsum = false; F.go('checkout', at); setTimeout(() => { if (onPay()) F.openSheet('s-payfail'); }, 60); };
+  /* v45 presets: Sara and Fatima's GP visit with Sara's blood test (today, the next free time), and Fatima's knee rehab
+     package with appointments 1 and 2 on Thu 8 Oct and Sat 10 Oct at 10 AM, the week after her current physio session */
+  const mumId = () => (pats().find(p => /mother/i.test(p.rel || '')) || pats()[1] || pats()[0]).id;
+  function v45Cart(kind) {
+    S.v45cart = 'new'; S.v45open = null; S.v45to = null; S.v45mates = null;
+    D.appointments.upcoming = D.appointments.upcoming.filter(a => !a.v45demo);
+    Object.keys(S.v45pkgs || {}).forEach(k => { if (S.v45pkgs[k].demo) delete S.v45pkgs[k]; });
+    const ids = kind === 'package' ? ['knee5'] : kind === 'visit' ? ['gp', 'cbc'] : ['gp', 'cbc', 'knee5'];
+    base(ids, { knee5: { pat: mumId(), sess: [{ mode: 'slot', d: 10, h: 10 }, { mode: 'slot', d: 12, h: 10 }, null, null, null], when: { mode: 'slot', d: 10, h: 10 } } });
+    if (kind !== 'package') { bk(byKey('gp')).pat = selfId(); bk(dupItem(byKey('gp')).it).pat = mumId(); }
+  }
+  const v45Book = kind => { v45Cart(kind); S.sPay = defCard(); S.v45demo = true; completeBooking(); S.v45demo = false; };
+  const sheetSoon = o => setTimeout(() => { if (S.screen === 'cart') v45Open(o); }, 80);
+  F.v45 = {
+    cart: kind => { v45Cart(kind); F.go('cart', at); },
+    time: () => { v45Cart('both'); F.go('cart', at); sheetSoon({ kind: 'time', k: 'gp' }); },
+    svc: () => { v45Cart('both'); F.go('cart', at); sheetSoon({ kind: 'svc', k: 'gp' }); },
+    sess: () => { v45Cart('both'); F.go('cart', at); sheetSoon({ kind: 'sess', k: 'knee5', n: 2 }); },
+    pay: () => { v45Cart('both'); S.sPay = defCard(); S.sOsum = true; F.go('checkout', at); },
+    done: () => { v45Book('both'); F.go('book-done', at); },
+    detail: (sched, which) => {
+      v45Book('both'); S.apptTab = 'upcoming'; F.go('appts', { dir: 'none' });
+      const ids = S.sLast.ids, pk = D.appointments.upcoming.find(a => ids.includes(a.id) && a.pkg);
+      F.openAppt(which === 'visit' || !pk ? ids[0] : pk.id, { dir: 'fade' });
+      if (sched) setTimeout(() => { if (S.screen === 'appt-details' && F.v45sched) F.v45sched(2); }, 120);
+    },
+  };
 })();
